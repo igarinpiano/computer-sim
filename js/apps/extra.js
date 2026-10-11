@@ -18,7 +18,7 @@ export function mines(os) {
       { label: 'ヘルプ(H)', items: [{ label: '遊び方', onClick: () => msgBox(os, { title: os.L.mines, text: '左クリックでマスを開き、右クリックで旗を立てます。\n数字は周囲 8 マスにある地雷の数です。\n開いた数字をダブルクリックすると、旗の数が合っていれば周囲をまとめて開きます。' }) }] }]),
     h('div', { class: 'ms-frame' }, h('div', { class: 'ms-top' }, count, face, clock), board));
   const win = os.wm.open({ title: os.L.mines, icon: 'mines', app: 'mines', width: 200, height: 260, resizable: false, content });
-  win.proc = { cmd: os.id === 'mint' ? 'gnome-mines' : 'winmine.exe', exe: 'winmine.exe' };
+  win.proc = { cmd: os.kind !== 'win' ? 'gnome-mines' : 'winmine.exe', exe: 'winmine.exe' };
   const idx = (x, y) => y * W + x;
   const around = i => { const x = i % W, y = Math.floor(i / W), out = []; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const nx = x + dx, ny = y + dy; if ((dx || dy) && nx >= 0 && ny >= 0 && nx < W && ny < H) out.push(idx(nx, ny)); } return out; };
   function reset() {
@@ -116,7 +116,7 @@ export function paint(os, args = {}) {
     ]),
     h('div', { class: 'pt-body' }, toolBox, h('div', { class: 'pt-stage' }, canvas)), palette);
   const win = os.wm.open({ title: '', icon: 'paint', app: 'paint', width: 660, height: 500, minW: 320, minH: 260, content });
-  win.proc = { cmd: os.id === 'mint' ? 'drawing' : 'mspaint.exe', exe: 'mspaint.exe' };
+  win.proc = { cmd: os.kind !== 'win' ? 'drawing' : 'mspaint.exe', exe: 'mspaint.exe' };
   const push = () => { undo.push(g.getImageData(0, 0, canvas.width, canvas.height)); if (undo.length > 15) undo.shift(); };
   const back = () => { const u = undo.pop(); if (u) g.putImageData(u, 0, 0); };
   const pos = e => { const r = canvas.getBoundingClientRect(); return { x: Math.floor((e.clientX - r.left) * (canvas.width / r.width)), y: Math.floor((e.clientY - r.top) * (canvas.height / r.height)) }; };
@@ -166,7 +166,7 @@ export function paint(os, args = {}) {
 
 // ---------------------------------------------------------------- settings / control panel
 export function settings(os, args = {}) {
-  const xp = os.id !== 'mint';
+  const xp = os.kind === 'win';
   const pane = h('div', { class: 'set-pane' });
   const nav = h('div', { class: 'set-nav' });
   const s = os.settings;
@@ -178,7 +178,7 @@ export function settings(os, args = {}) {
       h('div', { class: 'set-wp' }, os.wallpapers.map(([id, label]) => h('button', { class: 'set-wp-item' + (s.wallpaper === id ? ' on' : ''), type: 'button', onClick: () => { os.set('wallpaper', id); show('desktop'); } }, h('div', { class: `wp-thumb wp-${os.id} wp-${id}` }), h('span', null, label)))),
       h('h3', null, '表示'),
       row('ウィンドウのアニメーション', h('input', { type: 'checkbox', checked: s.animate, onChange: e => os.set('animate', e.target.checked) })),
-      os.id === 'mint' ? row('ワークスペース切り替え', h('span', null, 'Ctrl + Alt + ← / →、またはパネル右側の番号')) : null,
+      os.workspaces > 1 ? row('ワークスペース切り替え', h('span', null, 'Ctrl + Alt + ← / →、またはパネル右側の番号')) : null,
     ]],
     saver: ['スクリーン セーバー', 'saver', () => [
       h('h3', null, 'スクリーン セーバー'),

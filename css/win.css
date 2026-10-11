@@ -1,0 +1,238 @@
+/* Windows 3.1 / 98 (classic grey), 7 (Aero), 8, 10 and 11 themes. All drawn from scratch. */
+.tb-main { display: contents; }
+.k-win .taskbar .tray-clock { border: 0; background: none; color: inherit; font: inherit; display: flex; flex-direction: column; align-items: flex-end; line-height: 1.25; padding: 0 4px; white-space: nowrap; }
+.w-spin { width: 38px; height: 38px; border-radius: 50%; border: 4px dotted #fff; border-left-color: transparent; border-bottom-color: transparent; animation: w-spin 1.3s linear infinite; }
+@keyframes w-spin { to { transform: rotate(360deg); } }
+.w-bye { position: absolute; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b3d91; color: #fff; font: 300 22px/1.4 "Segoe UI", "Yu Gothic UI", "Hiragino Sans", sans-serif; animation: fade-in .35s; }
+.crash.sad { background: #0a6fc9; font: 300 22px/1.6 "Segoe UI", "Yu Gothic UI", "Hiragino Sans", sans-serif; } .crash.sad pre::first-line { font-size: 110px; line-height: 1.2; } .crash.sad.dark { background: #000; }
+
+/* ============================================================ classic: 3.1 and 98 */
+.os-win31, .os-win98 {
+  --font: "MS UI Gothic", "MS Sans Serif", Tahoma, "Hiragino Sans", "Yu Gothic UI", sans-serif; --mono: "MS Gothic", "Courier New", Menlo, monospace;
+  --app-bg: #c0c0c0; --app-fg: #000; --bar-bg: #c0c0c0; --line: #808080; --hover: #d4d4d4; --accent: #000080;
+  --field-bg: #fff; --field-fg: #000; --field-border: #808080; --sel-bg: #000080; --sel-fg: #fff;
+  --menu-bg: #c0c0c0; --menu-fg: #000; --menu-border: #808080; --menu-hi: #000080; --menu-hi-fg: #fff;
+  --side-bg: #fff; --side-fg: #000; --banner: linear-gradient(90deg, #000080, #1084d0); --icon-w: 78px; --icon-h: 72px; background: #000;
+}
+.wp-win31.wp-gray { --wp: linear-gradient(#b8b8b8, #b8b8b8); } .wp-win31.wp-teal, .wp-win98.wp-teal { --wp: linear-gradient(#008080, #008080); }
+.wp-win31.wp-weave { --wp: repeating-linear-gradient(45deg, rgba(255, 255, 255, .12) 0 2px, transparent 2px 8px), repeating-linear-gradient(-45deg, rgba(0, 0, 0, .14) 0 2px, transparent 2px 8px), linear-gradient(#5a6f8a, #5a6f8a); }
+.wp-win98.wp-clouds { --wp: radial-gradient(ellipse 30% 12% at 20% 22%, rgba(255, 255, 255, .9), transparent 70%), radial-gradient(ellipse 36% 14% at 68% 14%, rgba(255, 255, 255, .85), transparent 70%), radial-gradient(ellipse 28% 10% at 84% 46%, rgba(255, 255, 255, .7), transparent 70%), radial-gradient(ellipse 34% 12% at 34% 62%, rgba(255, 255, 255, .75), transparent 70%), linear-gradient(#3f86d8, #a8d4f7); }
+.wp-win98.wp-forest { --wp: radial-gradient(ellipse 70% 40% at 50% 110%, #0d2b12 0 60%, transparent 61%), repeating-linear-gradient(90deg, rgba(10, 40, 18, .55) 0 14px, transparent 14px 46px), linear-gradient(#bfe3c0, #4f9a5c 60%, #1d5a2c); }
+.wp-win98.wp-navy { --wp: linear-gradient(#000050, #000080); }
+:is(.os-win31, .os-win98) .btn, :is(.os-win31, .os-win98) .tbtn.on { min-width: 74px; padding: 3px 12px; border: 1px solid; border-color: #fff #000 #000 #fff; border-radius: 0; background: #c0c0c0; color: #000; box-shadow: inset -1px -1px #808080, inset 1px 1px #dfdfdf; }
+:is(.os-win31, .os-win98) .btn:active { border-color: #000 #fff #fff #000; box-shadow: inset 1px 1px #808080; padding: 4px 11px 2px 13px; }
+:is(.os-win31, .os-win98) .btn.default { outline: 1px solid #000; } :is(.os-win31, .os-win98) .btn:focus-visible { outline: 1px dotted #000; outline-offset: -5px; }
+:is(.os-win31, .os-win98) .tbtn.on { min-width: 0; padding: 3px 6px; }
+:is(.os-win31, .os-win98) .input, :is(.os-win31, .os-win98) :is(.fm-list, .fd-list, .editor-text, .calc-display, .tm-list) { border: 2px solid; border-color: #808080 #fff #fff #808080; box-shadow: inset 1px 1px #000; }
+:is(.os-win31, .os-win98) .menu { border: 1px solid; border-color: #fff #000 #000 #fff; box-shadow: inset -1px -1px #808080, 2px 2px 0 rgba(0, 0, 0, .3); }
+:is(.os-win31, .os-win98) :is(.statusbar, .toolbar) { border-color: #808080; box-shadow: inset 0 1px #fff; }
+:is(.os-win31, .os-win98) .fm-side { border-right: 1px solid #808080; } :is(.os-win31, .os-win98) .fm-group-title { border-bottom: 1px solid #808080; margin-bottom: 3px; }
+:is(.os-win31, .os-win98) .win.opening, :is(.os-win31, .os-win98) .win.closing { animation: none; }
+:is(.os-win31, .os-win98) .notes { right: 8px; bottom: 36px; } :is(.os-win31, .os-win98) .note { background: #ffffe1; color: #000; border: 1px solid #000; box-shadow: 2px 2px 0 rgba(0, 0, 0, .4); }
+:is(.os-win31, .os-win98) .set-nav-item.on { background: #000080; }
+.w98-radios { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
+
+/* ---- 98 */
+.os-win98 .win-frame { padding: 2px; background: #c0c0c0; border: 1px solid; border-color: #dfdfdf #000 #000 #dfdfdf; box-shadow: inset 1px 1px #fff, inset -1px -1px #808080, 2px 2px 6px rgba(0, 0, 0, .35); }
+.os-win98 .win-title { height: 20px; padding: 0 2px 0 3px; margin-bottom: 1px; color: #fff; font-weight: bold; background: linear-gradient(90deg, #000080, #1084d0); }
+.os-win98 .win:not(.active) .win-title { background: linear-gradient(90deg, #808080, #b5b5b5); color: #d4d0c8; }
+.os-win98 .win-btns { gap: 0; } .os-win98 .wb-close { margin-left: 2px; }
+.os-win98 .wb { position: relative; width: 16px; height: 14px; background: #c0c0c0; border: 1px solid; border-color: #fff #000 #000 #fff; box-shadow: inset -1px -1px #808080; }
+.os-win98 .wb:active { border-color: #000 #fff #fff #000; box-shadow: none; }
+.os-win98 .wb::before, .os-win98 .wb::after { content: ''; position: absolute; background: #000; }
+.os-win98 .wb-min::before { left: 3px; bottom: 2px; width: 6px; height: 2px; }
+.os-win98 .wb-max::before { inset: 1px 2px 2px 2px; background: none; border: 1px solid #000; border-top-width: 2px; }
+.os-win98 .wb-close::before, .os-win98 .wb-close::after { left: 2px; top: 5px; width: 10px; height: 2px; transform: rotate(45deg); } .os-win98 .wb-close::after { transform: rotate(-45deg); }
+.os-win98 .taskbar { height: 28px; padding: 2px; gap: 3px; background: #c0c0c0; color: #000; border-top: 1px solid #fff; box-shadow: 0 -1px #dfdfdf; align-items: stretch; }
+.os-win98 .start-btn { gap: 4px; padding: 0 6px 0 4px; border-radius: 0; font: bold 12px var(--font); text-shadow: none; color: #000; background: #c0c0c0; border: 1px solid; border-color: #fff #000 #000 #fff; box-shadow: inset -1px -1px #808080, inset 1px 1px #dfdfdf; filter: none; }
+.os-win98 .start-btn.open { border-color: #000 #fff #fff #000; box-shadow: inset 1px 1px #808080; }
+.os-win98 .start-btn svg { filter: drop-shadow(0 0 0 #000) hue-rotate(0deg); background: #000080; border-radius: 2px; }
+.os-win98 .quick { padding: 0 4px; border-left: 2px groove #fff; border-right: 2px groove #fff; margin: 0 2px; }
+.os-win98 .tasks { flex: 1; min-width: 0; display: flex; gap: 3px; overflow: hidden; }
+.os-win98 .task { display: flex; align-items: center; gap: 4px; flex: 0 1 160px; min-width: 36px; padding: 0 5px; background: #c0c0c0; color: #000; text-align: left; white-space: nowrap; overflow: hidden; border: 1px solid; border-color: #fff #000 #000 #fff; box-shadow: inset -1px -1px #808080, inset 1px 1px #dfdfdf; }
+.os-win98 .task span { overflow: hidden; text-overflow: ellipsis; }
+.os-win98 .task.active { font-weight: bold; border-color: #000 #fff #fff #000; box-shadow: inset 1px 1px #808080; background: repeating-conic-gradient(#fff 0 25%, #c0c0c0 0 50%) 0 0 / 2px 2px; }
+.os-win98 .tray { padding: 0 8px; gap: 4px; background: none; box-shadow: none; border: 1px solid; border-color: #808080 #fff #fff #808080; color: #000; }
+.menu.sm98 { padding-left: 26px; min-width: 190px; } .menu.sm98::before { content: 'Windows 98 風'; position: absolute; left: 2px; top: 2px; bottom: 2px; width: 22px; writing-mode: vertical-rl; transform: rotate(180deg); text-align: left; padding-top: 6px; font: bold 15px/22px Arial, sans-serif; color: #c0c0c0; background: linear-gradient(0deg, #000080, #1084d0); }
+.menu.sm98 > .menu-item { padding: 5px 16px 5px 4px; } .menu.sm98 > .menu-item > .menu-ico { width: 28px; } .menu.sm98 > .menu-item > .menu-ico svg { width: 24px; height: 24px; }
+.w98-boot { position: absolute; inset: 0; display: grid; place-items: center; background: radial-gradient(ellipse 32% 12% at 22% 24%, rgba(255, 255, 255, .9), transparent 70%), radial-gradient(ellipse 30% 12% at 76% 18%, rgba(255, 255, 255, .8), transparent 70%), radial-gradient(ellipse 36% 12% at 62% 70%, rgba(255, 255, 255, .7), transparent 70%), linear-gradient(#2f79d0, #a8d4f7); color: #fff; font-family: "Franklin Gothic Medium", "Trebuchet MS", "Hiragino Sans", sans-serif; }
+.w98-logo { display: flex; align-items: center; gap: 18px; text-shadow: 2px 2px 4px rgba(0, 0, 40, .5); } .w98-logo svg { filter: drop-shadow(3px 4px 3px rgba(0, 0, 40, .45)); }
+.w98-name { font-size: 46px; font-weight: 300; } .w98-name b { font-weight: 800; margin-left: 6px; } .w98-name sup { font-size: 14px; }
+.w98-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 18px; background: linear-gradient(90deg, #a8c8f0, #1a4fc0, #a8c8f0, #1a4fc0, #a8c8f0) 0 0 / 200% 100%; animation: w98-slide 2s linear infinite; } @keyframes w98-slide { to { background-position: -200% 0; } }
+.w98-boot.w-bye { background: #000 radial-gradient(ellipse at center, #1a4fc0, #000 70%); } .w98-safe { background: #000; color: #f79b2f; font: bold 22px "MS UI Gothic", "Hiragino Sans", sans-serif; }
+
+/* ---- 3.1 */
+.os-win31 .win-frame { padding: 3px; background: #c0c0c0; border: 1px solid #000; box-shadow: inset 0 0 0 1px #c0c0c0, inset 0 0 0 2px #000; }
+.os-win31 .win.active .win-frame { background: #c0c0c0; }
+.os-win31 .win-title { height: 20px; margin-bottom: 1px; color: #fff; background: #000080; font-weight: bold; gap: 0; border-bottom: 1px solid #000; }
+.os-win31 .win:not(.active) .win-title { background: #fff; color: #000; }
+.os-win31 .win-icon { display: none; } .os-win31 .win-name { text-align: center; } .os-win31 .win-btns { display: contents; }
+.os-win31 .wb { position: relative; width: 20px; height: 19px; background: #c0c0c0; border: 0; border-left: 1px solid #000; box-shadow: inset 1px 1px #fff, inset -1px -1px #808080; }
+.os-win31 .wb-close { order: -1; border-left: 0; border-right: 1px solid #000; box-shadow: none; } .os-win31 .wb-close::before { content: ''; position: absolute; left: 3px; top: 7px; width: 13px; height: 3px; background: #fff; border: 1px solid #000; box-shadow: 1px 1px #808080; }
+.os-win31 .wb-min::before, .os-win31 .wb-max::before { content: ''; position: absolute; left: 6px; top: 7px; border: 4px solid transparent; border-top: 5px solid #000; } .os-win31 .wb-max::before { top: 2px; border-top-color: transparent; border-bottom: 5px solid #000; }
+.w31-min { position: absolute; left: 0; right: 0; bottom: 4px; display: flex; gap: 14px; padding: 0 14px; pointer-events: none; z-index: 1; }
+.w31-icon { pointer-events: auto; display: flex; flex-direction: column; align-items: center; gap: 3px; width: 84px; border: 0; background: none; color: #000; } .w31-icon span { padding: 0 3px; background: #c0c0c0; max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .w31-icon.sel span { background: #000080; color: #fff; }
+.pm-body { flex: 1 !important; min-height: 0; overflow: auto; background: #fff; padding: 10px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 10px; border: 2px solid; border-color: #808080 #fff #fff #808080; }
+.pm-group { border: 1px solid #000; background: #fff; min-width: 180px; box-shadow: 2px 2px 0 #808080; } .pm-title { background: #000080; color: #fff; font-weight: bold; text-align: center; padding: 2px 8px; }
+.pm-items { display: grid; grid-template-columns: repeat(auto-fill, 82px); gap: 6px 2px; padding: 8px 6px; min-width: 260px; }
+.pm-item { display: flex; flex-direction: column; align-items: center; gap: 3px; border: 0; background: none; color: #000; padding: 2px; text-align: center; line-height: 1.2; } .pm-item:focus { outline: 0; } .pm-item:focus span { background: #000080; color: #fff; }
+.w31-dos { position: absolute; inset: 0; margin: 0; padding: 3vh 3vw; background: #000; color: #c0c0c0; font: 16px/1.3 "Courier New", "MS Gothic", monospace; }
+.w31-splash { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; background: #000080; color: #fff; } .w31-name { font: 300 52px "Times New Roman", serif; } .w31-name sup { font-size: 16px; } .w31-splash small { position: absolute; bottom: 5vh; opacity: .7; font: 12px sans-serif; }
+
+/* ============================================================ 7 (Aero) */
+.os-win7 {
+  --font: "Segoe UI", "Meiryo UI", Meiryo, "Yu Gothic UI", "Hiragino Sans", sans-serif; --mono: Consolas, "MS Gothic", Menlo, monospace;
+  --app-bg: #f0f0f0; --app-fg: #000; --bar-bg: linear-gradient(#fafcfe, #e3ecf7); --line: #b9c6d6; --hover: #e6f1fb; --accent: #3399ff;
+  --field-bg: #fff; --field-fg: #000; --field-border: #abadb3; --sel-bg: #3399ff; --sel-fg: #fff;
+  --menu-bg: #f5f6f7; --menu-fg: #000; --menu-border: #979797; --menu-hi: #d5e7fb; --menu-hi-fg: #000;
+  --side-bg: #fff; --side-fg: #1e3287; --banner: linear-gradient(90deg, #1b5fae, #5fb3ef); --icon-w: 82px; --icon-h: 78px; background: #000;
+}
+.wp-win7.wp-harmony { --wp: radial-gradient(ellipse 50% 60% at 50% 46%, rgba(255, 255, 255, .55), transparent 70%), conic-gradient(from 200deg at 50% 46%, rgba(255, 255, 255, 0) 0 20deg, rgba(255, 255, 255, .18) 30deg, rgba(255, 255, 255, 0) 55deg, rgba(120, 220, 160, .25) 90deg, rgba(255, 255, 255, 0) 130deg, rgba(255, 220, 120, .2) 190deg, rgba(255, 255, 255, 0) 240deg, rgba(255, 255, 255, .2) 300deg, rgba(255, 255, 255, 0) 360deg), linear-gradient(#1f6fd0, #58b0f0 55%, #2b86de); }
+.wp-win7.wp-aurora { --wp: radial-gradient(ellipse 80% 40% at 30% 80%, rgba(60, 255, 190, .5), transparent 65%), radial-gradient(ellipse 70% 35% at 80% 30%, rgba(90, 160, 255, .55), transparent 60%), linear-gradient(#041a3a, #0b3d6e); }
+.wp-win7.wp-dune { --wp: radial-gradient(ellipse 110% 50% at 20% 118%, #c98a3d 0 60%, transparent 60.5%), radial-gradient(ellipse 110% 46% at 90% 124%, #a8672a 0 60%, transparent 60.5%), linear-gradient(#f6c36b, #ffe2a8 60%, #f0b55e); }
+.wp-win7.wp-plain, .wp-win10.wp-plain, .wp-win8.wp-plain { --wp: linear-gradient(#1d4f91, #1d4f91); } .wp-win11.wp-plain { --wp: linear-gradient(#20324a, #20324a); }
+.os-win7 .win-frame { padding: 0 7px 7px; border-radius: 7px; border: 1px solid rgba(0, 0, 0, .6); background: linear-gradient(115deg, rgba(255, 255, 255, .35) 0 18%, rgba(255, 255, 255, 0) 19% 40%, rgba(255, 255, 255, .18) 41% 46%, rgba(255, 255, 255, 0) 47%), rgba(140, 185, 235, .55); backdrop-filter: blur(9px) saturate(1.35); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .6), 0 10px 30px rgba(0, 0, 0, .55); }
+.os-win7 .win:not(.active) .win-frame { background: rgba(190, 205, 222, .5); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .5), 0 4px 14px rgba(0, 0, 0, .35); }
+.os-win7 .win-title { height: 28px; padding-left: 2px; color: #000; text-shadow: 0 0 9px #fff, 0 0 5px #fff, 0 0 3px #fff; }
+.os-win7 .win-btns { align-self: flex-start; } .os-win7 .win-body { border: 1px solid rgba(0, 0, 0, .45); box-shadow: 0 0 0 1px rgba(255, 255, 255, .55); }
+.os-win7 .wb { position: relative; width: 28px; height: 19px; border: 1px solid rgba(0, 0, 0, .5); border-top: 0; margin-left: -1px; background: linear-gradient(rgba(255, 255, 255, .55), rgba(255, 255, 255, .15) 45%, rgba(0, 0, 0, .12) 50%, rgba(255, 255, 255, .25)); }
+.os-win7 .wb:first-child { border-radius: 0 0 0 5px; } .os-win7 .wb-close { width: 45px; border-radius: 0 0 5px 0; background: linear-gradient(#e9a493, #cf5a3f 45%, #b7290d 50%, #d9735a); }
+.os-win7 .wb:hover { filter: brightness(1.25); box-shadow: 0 0 8px rgba(120, 200, 255, .9); } .os-win7 .wb-close:hover { box-shadow: 0 0 9px rgba(255, 90, 60, .95); }
+.os-win7 .wb::before, .os-win7 .wb::after { content: ''; position: absolute; background: #fff; box-shadow: 0 0 0 1px rgba(40, 50, 60, .7); }
+.os-win7 .wb-min::before { left: 9px; bottom: 5px; width: 9px; height: 3px; } .os-win7 .wb-max::before { left: 9px; top: 4px; width: 9px; height: 8px; background: none; border: 2px solid #fff; }
+.os-win7 .wb-close::before, .os-win7 .wb-close::after { left: 15px; top: 8px; width: 13px; height: 3px; transform: rotate(45deg); box-shadow: none; } .os-win7 .wb-close::after { transform: rotate(-45deg); }
+.os-win7 .win.maximized .win-frame { border-radius: 0; padding: 0; }
+.os-win7 .btn { min-width: 74px; padding: 3px 12px; border: 1px solid #707070; border-radius: 3px; background: linear-gradient(#f2f2f2, #ebebeb 50%, #dddddd 51%, #cfcfcf); color: #000; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .8); }
+.os-win7 .btn:hover { border-color: #3c7fb1; background: linear-gradient(#eaf6fd, #d9f0fc 50%, #bee6fd 51%, #a7d9f5); } .os-win7 .btn.default { border-color: #3c7fb1; box-shadow: inset 0 0 0 1px #5cc8f4; }
+.os-win7 .menu { border-radius: 2px; box-shadow: 3px 4px 8px rgba(0, 0, 0, .35); padding: 2px; } .os-win7 .menu-item { border: 1px solid transparent; border-radius: 3px; } .os-win7 .menu-item:hover { border-color: #aecff7; background: linear-gradient(#f2f8ff, #d5e7fb); }
+.os-win7 .fm-side { border-right: 1px solid #d5dfe9; } .os-win7 .fm-group-title { color: #1e3287; font-weight: normal; }
+.os-win7 .fm-item.sel { background: linear-gradient(#e8f2fd, #cfe3fb); border-color: #7da2ce; border-radius: 3px; } .os-win7 .view-icons .fm-item.sel .fm-name { background: none; color: #000; }
+.os-win7 .desk-icon.sel { background: rgba(170, 210, 255, .35); border-color: rgba(200, 225, 255, .7); } .os-win7 .desk-icon.sel .desk-label { background: none; text-shadow: 1px 1px 2px #000; }
+.os-win7 .taskbar { height: 40px; align-items: center; padding: 0 0 0 4px; color: #fff; background: linear-gradient(rgba(120, 160, 205, .55), rgba(30, 55, 95, .78) 12%, rgba(18, 38, 70, .82)); backdrop-filter: blur(10px) saturate(1.3); border-top: 1px solid rgba(255, 255, 255, .5); box-shadow: 0 -1px rgba(0, 0, 0, .5); }
+.os-win7 .start-btn { width: 46px; height: 46px; margin: -8px 6px -2px 2px; padding: 0; justify-content: center; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .7); background: radial-gradient(circle at 35% 28%, #9fe0ff, #2d8fe0 45%, #0b3f8a 85%); box-shadow: 0 0 0 2px rgba(0, 0, 0, .4), inset 0 0 12px rgba(255, 255, 255, .5), 0 0 12px rgba(80, 170, 255, .6); filter: none; }
+.os-win7 .start-btn:hover, .os-win7 .start-btn.open { filter: brightness(1.2); box-shadow: 0 0 0 2px rgba(0, 0, 0, .4), inset 0 0 14px rgba(255, 255, 255, .7), 0 0 18px rgba(120, 200, 255, .95); }
+.os-win7 .tasks { flex: 1; display: flex; align-items: center; gap: 2px; min-width: 0; }
+.os-win7 .task { width: 60px; height: 38px; display: flex; align-items: center; justify-content: center; border: 1px solid transparent; border-radius: 3px; background: none; }
+.os-win7 .task:hover { border-color: rgba(255, 255, 255, .45); background: linear-gradient(rgba(255, 255, 255, .3), rgba(255, 255, 255, .08)); }
+.os-win7 .task.running { border-color: rgba(255, 255, 255, .5); background: linear-gradient(rgba(255, 255, 255, .28), rgba(255, 255, 255, .06) 50%, rgba(255, 255, 255, .14)); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .25); }
+.os-win7 .task.active { background: linear-gradient(rgba(255, 255, 255, .55), rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .32)); } .os-win7 .task.multi { box-shadow: 3px 0 0 -1px rgba(255, 255, 255, .35), 4px 0 0 -1px rgba(0, 0, 0, .3); }
+.os-win7 .tray, .os-win10 .tray, .os-win8 .tray { background: none; box-shadow: none; border: 0; height: 100%; padding: 0 0 0 8px; gap: 2px; align-items: center; } :is(.os-win7, .os-win10, .os-win8) .tray svg { filter: brightness(2.6) saturate(0); }
+.os-win7 .tray-clock, .os-win10 .tray-clock, .os-win8 .tray-clock, .os-win11 .tray-clock { align-items: center !important; font-size: 12px !important; padding: 0 8px !important; }
+.tb-peek { width: 14px; align-self: stretch; margin-left: 4px; border: 0; border-left: 1px solid rgba(255, 255, 255, .45); background: linear-gradient(rgba(255, 255, 255, .3), rgba(255, 255, 255, .05)); } .tb-peek:hover { background: rgba(255, 255, 255, .5); }
+:is(.os-win7, .os-win8, .os-win10, .os-win11) .notes { right: 12px; bottom: 54px; }
+.os-win7 .note { background: #fff; color: #000; border: 1px solid #5a7fb5; border-radius: 6px; box-shadow: 0 4px 16px rgba(0, 0, 0, .4); }
+.smx { position: absolute; z-index: 9200; font-family: var(--font); animation: sm-in .14s ease-out; }
+.sm-search { width: 100%; outline: 0; } .sm-none { padding: 14px; opacity: .65; font-size: 12px; }
+.sm7 { left: 0; bottom: 40px; width: 420px; max-width: 100%; height: 500px; max-height: calc(100% - 48px); display: flex; padding: 6px; gap: 0; border-radius: 7px 7px 0 0; border: 1px solid rgba(0, 0, 0, .6); background: rgba(40, 70, 115, .72); backdrop-filter: blur(10px); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .45), 4px 0 18px rgba(0, 0, 0, .5); color: #fff; }
+.sm7-left { flex: 1.3; min-width: 0; display: flex; flex-direction: column; background: #fff; color: #000; border-radius: 4px; border: 1px solid rgba(0, 0, 0, .5); padding: 6px; gap: 4px; }
+.sm7 .sm-list { flex: 1; overflow: auto; display: flex; flex-direction: column; } .sm7 .sm-item { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border: 1px solid transparent; border-radius: 3px; background: none; color: inherit; text-align: left; }
+.sm7 .sm-item:hover, .sm7-all:hover { border-color: #aecff7; background: linear-gradient(#f2f8ff, #d5e7fb); }
+.sm7-all { padding: 6px; border: 1px solid transparent; border-top: 1px solid #d6e5f5; font-weight: bold; } .sm7 .sm-search { border: 1px solid #8e9bb0; border-radius: 3px; padding: 5px 8px; font-style: italic; }
+.sm7-right { flex: 1; display: flex; flex-direction: column; padding: 34px 6px 4px 10px; gap: 1px; position: relative; } .sm7-right hr { border: 0; border-top: 1px solid rgba(255, 255, 255, .25); margin: 5px 4px; width: 100%; }
+.sm7-pic { position: absolute; top: -26px; left: 50%; margin-left: -28px; padding: 5px; border-radius: 5px; background: linear-gradient(rgba(255, 255, 255, .7), rgba(255, 255, 255, .25)); border: 1px solid rgba(0, 0, 0, .5); box-shadow: 0 2px 8px rgba(0, 0, 0, .5); display: flex; }
+.sm-r { padding: 6px 8px; border: 1px solid transparent; border-radius: 3px; background: none; color: #fff; text-align: left; text-shadow: 0 1px 2px #000; } .sm-r:hover { border-color: rgba(255, 255, 255, .5); background: rgba(255, 255, 255, .22); }
+.sm7-power { margin-top: auto; display: flex; justify-content: flex-end; } .sm7-shut, .sm7-more { border: 1px solid rgba(0, 0, 0, .6); color: #fff; background: linear-gradient(rgba(255, 255, 255, .35), rgba(255, 255, 255, .1) 50%, rgba(0, 0, 0, .15)); padding: 4px 12px; border-radius: 3px 0 0 3px; } .sm7-more { border-left: 0; border-radius: 0 3px 3px 0; padding: 4px 7px; } .sm7-shut:hover, .sm7-more:hover { filter: brightness(1.4); }
+.w7-boot { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; background: #000; color: #dfe9f5; font: 18px "Segoe UI", "Hiragino Sans", sans-serif; } .w7-boot small { position: absolute; bottom: 5vh; opacity: .6; font-size: 12px; }
+.w7-orb { width: 130px; height: 130px; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle, rgba(90, 180, 255, .8), rgba(30, 90, 200, .35) 55%, transparent 70%); animation: w7-pulse 2s ease-in-out infinite; } @keyframes w7-pulse { 50% { transform: scale(1.12); filter: brightness(1.5); } }
+.w7-login { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-family: "Segoe UI", "Meiryo UI", "Hiragino Sans", sans-serif; background: radial-gradient(ellipse 60% 50% at 30% 100%, rgba(120, 230, 200, .6), transparent 70%), radial-gradient(ellipse 50% 60% at 85% 10%, rgba(140, 200, 255, .55), transparent 70%), linear-gradient(#0a4a8f, #1b7fc4 55%, #0e5aa0); }
+.w7-user { display: flex; flex-direction: column; align-items: center; gap: 10px; border: 0; background: none; color: #fff; } .w7-user b { font-size: 22px; font-weight: normal; text-shadow: 0 1px 3px #000; } .w7-user small { opacity: .85; }
+.w7-frame { display: flex; padding: 12px; border-radius: 10px; background: linear-gradient(rgba(255, 255, 255, .65), rgba(255, 255, 255, .2)); border: 1px solid rgba(255, 255, 255, .8); box-shadow: 0 4px 18px rgba(0, 0, 0, .5); } .w7-user:hover .w7-frame, .w7-user:focus-visible .w7-frame { box-shadow: 0 0 22px rgba(160, 220, 255, .95); } .w7-user:focus-visible { outline: 0; }
+.w7-brand { position: absolute; bottom: 6vh; display: flex; align-items: center; gap: 6px; font-size: 18px; opacity: .9; } .w7-off { position: absolute; right: 4vw; bottom: 5vh; border: 0; background: none; display: flex; padding: 6px; border-radius: 4px; } .w7-off:hover { background: rgba(255, 255, 255, .25); }
+.os-win7 .w-bye { background: linear-gradient(#0a4a8f, #1b7fc4 55%, #0e5aa0); }
+
+/* ============================================================ 10 and 8 */
+.os-win10, .os-win8 {
+  --font: "Segoe UI", "Yu Gothic UI", Meiryo, "Hiragino Sans", sans-serif; --mono: Consolas, "MS Gothic", Menlo, monospace;
+  --app-bg: #fff; --app-fg: #000; --bar-bg: #fff; --line: #e1e1e1; --hover: #e5f3ff; --accent: #0078d7;
+  --field-bg: #fff; --field-fg: #000; --field-border: #999; --sel-bg: #0078d7; --sel-fg: #fff;
+  --menu-bg: #f2f2f2; --menu-fg: #000; --menu-border: #ccc; --menu-hi: #dadada; --menu-hi-fg: #000;
+  --side-bg: #fff; --side-fg: #000; --banner: linear-gradient(90deg, #0063b1, #2d9be8); --icon-w: 80px; --icon-h: 80px; background: #000; font-size: 12px;
+}
+.os-win8 { --accent: #2f7fd6; }
+.wp-win10.wp-beam { --wp: conic-gradient(from 250deg at 78% 46%, rgba(120, 200, 255, 0) 0deg, rgba(120, 200, 255, .55) 16deg, rgba(20, 90, 200, .1) 34deg, rgba(120, 200, 255, .5) 52deg, rgba(120, 200, 255, 0) 70deg, rgba(0, 0, 0, 0) 360deg), radial-gradient(circle at 78% 46%, rgba(150, 220, 255, .9) 0, rgba(40, 120, 230, .45) 14%, transparent 40%), linear-gradient(90deg, #020b24, #06235a 60%, #0b3f95); }
+.wp-win10.wp-shore { --wp: radial-gradient(ellipse 120% 40% at 50% 108%, #d9c08a 0 60%, transparent 61%), linear-gradient(#8fd0ff 0, #cfeaff 46%, #1f8fb8 47%, #2aa6c9 78%, #7fd6e0); }
+.wp-win10.wp-night { --wp: radial-gradient(1.5px 1.5px at 14% 20%, #fff, transparent), radial-gradient(1px 1px at 40% 34%, #fff, transparent), radial-gradient(2px 2px at 70% 16%, #fff, transparent), radial-gradient(1px 1px at 86% 52%, #fff, transparent), radial-gradient(ellipse 120% 40% at 50% 115%, #0c1a14 0 60%, transparent 61%), linear-gradient(#03061a, #142a5c 75%, #2b4a7a); }
+.wp-win8.wp-ribbon { --wp: radial-gradient(ellipse 80% 30% at 20% 85%, rgba(255, 140, 60, .7), transparent 70%), radial-gradient(ellipse 70% 26% at 75% 70%, rgba(255, 220, 90, .6), transparent 70%), radial-gradient(ellipse 60% 30% at 60% 30%, rgba(90, 220, 200, .45), transparent 70%), linear-gradient(120deg, #1a8fa8, #2bb5a0 55%, #1d6f9a); }
+.wp-win8.wp-meadow { --wp: radial-gradient(ellipse 100% 50% at 30% 120%, #5dbb3f 0 60%, transparent 61%), radial-gradient(circle at 80% 22%, #fff7c2 0 4%, rgba(255, 247, 194, .3) 9%, transparent 20%), linear-gradient(#55b5f0, #cdeeff); }
+.os-win10 .win-frame, .os-win8 .win-frame { border: 1px solid #0078d7; background: #fff; box-shadow: 0 8px 28px rgba(0, 0, 0, .4); } .os-win10 .win:not(.active) .win-frame { border-color: #aaa; box-shadow: 0 4px 14px rgba(0, 0, 0, .25); }
+.os-win10 .win-title { height: 31px; padding-left: 8px; background: #fff; color: #000; } .os-win10 .win:not(.active) .win-title { color: #999; }
+:is(.os-win10, .os-win8, .os-win11) .wb { position: relative; width: 46px; height: 31px; border: 0; background: none; } :is(.os-win10, .os-win8, .os-win11) .win-btns { align-self: flex-start; }
+:is(.os-win10, .os-win11) .wb:hover { background: rgba(0, 0, 0, .09); } :is(.os-win10, .os-win8, .os-win11) .wb-close:hover { background: #e81123; }
+:is(.os-win10, .os-win8, .os-win11) .wb::before, :is(.os-win10, .os-win8, .os-win11) .wb::after { content: ''; position: absolute; left: 18px; top: 15px; width: 10px; height: 1px; background: #000; }
+:is(.os-win10, .os-win8, .os-win11) .wb-min::after, :is(.os-win10, .os-win8, .os-win11) .wb-max::after { display: none; }
+:is(.os-win10, .os-win8, .os-win11) .wb-max::before { top: 10px; height: 10px; background: none; border: 1px solid #000; }
+:is(.os-win10, .os-win8, .os-win11) .wb-close::before, :is(.os-win10, .os-win8, .os-win11) .wb-close::after { left: 16px; width: 14px; transform: rotate(45deg); } :is(.os-win10, .os-win8, .os-win11) .wb-close::after { transform: rotate(-45deg); }
+:is(.os-win10, .os-win8, .os-win11) .wb-close:hover::before, :is(.os-win10, .os-win8, .os-win11) .wb-close:hover::after { background: #fff; }
+.os-win8 .win-frame { border: 7px solid #6aa7e8; border-top: 0; } .os-win8 .win:not(.active) .win-frame { border-color: #c9c9c9; }
+.os-win8 .win-title { height: 30px; margin: 0 -7px; padding-left: 8px; background: #6aa7e8; color: #000; } .os-win8 .win:not(.active) .win-title { background: #c9c9c9; } .os-win8 .win-name { text-align: center; font-size: 14px; }
+.os-win8 .wb { height: 22px; width: 30px; } .os-win8 .wb::before, .os-win8 .wb::after { left: 10px; top: 11px; } .os-win8 .wb-max::before { top: 6px; } .os-win8 .wb-close { width: 46px; background: #c75050; margin-right: 6px; } .os-win8 .wb-close::before, .os-win8 .wb-close::after { left: 16px; background: #fff; }
+:is(.os-win10, .os-win8) .win.maximized .win-frame { border-width: 0; }
+:is(.os-win10, .os-win8) .btn { min-width: 76px; padding: 4px 14px; border: 1px solid #adadad; border-radius: 0; background: #e1e1e1; color: #000; } :is(.os-win10, .os-win8) .btn:hover { background: #e5f1fb; border-color: #0078d7; } :is(.os-win10, .os-win8) .btn.default { border: 2px solid #0078d7; padding: 3px 13px; }
+:is(.os-win10, .os-win8) .menu { box-shadow: 4px 4px 10px rgba(0, 0, 0, .3); padding: 3px 0; } :is(.os-win10, .os-win8) .menu-item { padding: 5px 20px 5px 8px; }
+:is(.os-win10, .os-win8, .os-win11) .fm-item.sel { background: #cce8ff; border-color: #99d1ff; } :is(.os-win10, .os-win8, .os-win11) .view-icons .fm-item.sel .fm-name { background: none; color: #000; } :is(.os-win10, .os-win8, .os-win11) .fm-row.sel { background: #cce8ff; color: #000; }
+:is(.os-win10, .os-win8, .os-win11) .fm-side { border-right: 1px solid var(--line); } :is(.os-win10, .os-win8, .os-win11) .fm-place.cur { background: #cce8ff; } :is(.os-win10, .os-win8, .os-win11) .fm-group-title { font-weight: normal; opacity: .6; font-size: 11px; }
+:is(.os-win10, .os-win8, .os-win11) .desk-icon.sel { background: rgba(120, 190, 255, .3); border-color: rgba(160, 210, 255, .6); border-radius: 2px; } :is(.os-win10, .os-win8, .os-win11) .desk-icon.sel .desk-label { background: none; text-shadow: 1px 1px 2px #000; }
+:is(.os-win10, .os-win8, .os-win11) .set-nav { border-right: 1px solid var(--line); } :is(.os-win10, .os-win8, .os-win11) .tbtn span { font-size: 11px; }
+.os-win10 .taskbar, .os-win8 .taskbar { height: 40px; align-items: stretch; color: #fff; background: rgba(16, 16, 16, .9); backdrop-filter: blur(12px); } .os-win8 .taskbar { background: rgba(60, 95, 150, .88); }
+:is(.os-win10, .os-win8) .start-btn { width: 48px; padding: 0; justify-content: center; border-radius: 0; background: none; box-shadow: none; filter: none; } :is(.os-win10, .os-win8) .start-btn:hover, :is(.os-win10, .os-win8) .start-btn.open { background: rgba(255, 255, 255, .14); }
+.tb-search { display: flex; align-items: center; gap: 10px; width: 290px; max-width: 30vw; padding: 0 12px; border: 0; background: #3a3a3a; color: #c8c8c8; text-align: left; overflow: hidden; white-space: nowrap; } .tb-search svg { filter: brightness(3) saturate(0); } .tb-search:hover { background: #4a4a4a; }
+:is(.os-win10, .os-win8) .tasks { flex: 1; display: flex; min-width: 0; }
+:is(.os-win10, .os-win8) .task { position: relative; width: 48px; display: flex; align-items: center; justify-content: center; border: 0; background: none; } :is(.os-win10, .os-win8) .task:hover { background: rgba(255, 255, 255, .12); }
+:is(.os-win10, .os-win8) .task.running::after { content: ''; position: absolute; left: 7px; right: 7px; bottom: 0; height: 2px; background: #76b9ed; } :is(.os-win10, .os-win8) .task.active { background: rgba(255, 255, 255, .2); } :is(.os-win10, .os-win8) .task.active::after { left: 0; right: 0; }
+:is(.os-win10, .os-win8) .tb-peek { width: 6px; background: none; border-left: 1px solid rgba(255, 255, 255, .3); margin-left: 6px; }
+:is(.os-win10, .os-win8) .note { background: #1f1f1f; color: #fff; border: 1px solid #444; box-shadow: 0 6px 20px rgba(0, 0, 0, .5); animation: w-toast .3s ease-out; } @keyframes w-toast { from { transform: translateX(110%); } }
+.sm10 { left: 0; bottom: 40px; display: flex; width: 660px; max-width: 100%; height: 540px; max-height: calc(100% - 44px); background: rgba(31, 31, 31, .96); backdrop-filter: blur(16px); color: #fff; box-shadow: 4px 0 20px rgba(0, 0, 0, .5); }
+.sm10-side { width: 48px; display: flex; flex-direction: column; justify-content: flex-end; } .sm10-rail { height: 48px; border: 0; background: none; display: grid; place-items: center; } .sm10-rail:hover { background: rgba(255, 255, 255, .12); } .sm10-rail svg { filter: brightness(1.4); }
+.sm10-apps { width: 250px; display: flex; flex-direction: column; padding: 10px 4px 0; gap: 8px; } .sm10 .sm-search { background: #3a3a3a; border: 1px solid #555; color: #fff; padding: 7px 10px; } .sm10 .sm-search:focus { border-color: #0078d7; background: #fff; color: #000; }
+.sm10 .sm-list { flex: 1; overflow: auto; display: flex; flex-direction: column; scrollbar-width: thin; } .sm10 .sm-item { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border: 0; background: none; color: #fff; text-align: left; } .sm10 .sm-item:hover { background: rgba(255, 255, 255, .13); }
+.sm10-tiles { flex: 1; padding: 14px 16px; overflow: auto; } .sm10-head { font-size: 13px; margin-bottom: 8px; opacity: .85; }
+.tiles { display: grid; grid-template-columns: repeat(3, 100px); grid-auto-rows: 100px; gap: 4px; }
+.tile { position: relative; display: flex; align-items: center; justify-content: center; border: 2px solid transparent; background: var(--tc); color: #fff; padding: 0; } .tile.wide { grid-column: span 2; } .tile:hover { border-color: rgba(255, 255, 255, .7); }
+.tile span { position: absolute; left: 8px; bottom: 6px; font-size: 12px; } .tile-cal { flex-direction: column; } .tile-cal b { font: 200 42px/1 "Segoe UI", sans-serif; } .tile-cal span { position: static; margin-top: 4px; }
+.sm8 { inset: 0 0 40px 0; padding: 5vh 6vw; overflow: auto; color: #fff; background: radial-gradient(ellipse 80% 60% at 90% 100%, rgba(120, 60, 200, .55), transparent 70%), linear-gradient(120deg, #1b0f4a, #2a1670 55%, #3d1f86); animation: sm8-in .3s ease-out; } @keyframes sm8-in { from { opacity: 0; transform: scale(1.06); } }
+.sm8-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4vh; } .sm8-head h1 { margin: 0; font: 200 44px "Segoe UI", "Yu Gothic UI", "Hiragino Sans", sans-serif; }
+.sm8-user { display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 300; } .sm8-power { border: 0; background: none; display: flex; padding: 6px; border-radius: 50%; } .sm8-power:hover { background: rgba(255, 255, 255, .2); }
+.sm8 .tiles { grid-template-columns: repeat(auto-fill, 124px); grid-auto-rows: 124px; gap: 8px; max-width: 800px; } .sm8-hint { margin-top: 4vh; opacity: .6; font-size: 13px; }
+.w10-boot { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12vh; background: #000; color: #fff; } .w10-boot small { position: absolute; bottom: 5vh; opacity: .6; font: 12px sans-serif; } .w10-boot svg { filter: drop-shadow(0 0 0 #3a9bff) sepia(1) hue-rotate(175deg) saturate(4); }
+.w-lock { position: absolute; inset: 0; background: var(--wp) center / cover no-repeat; color: #fff; font-family: "Segoe UI", "Yu Gothic UI", "Hiragino Sans", sans-serif; overflow: hidden; }
+.w-lock::before { content: ''; position: absolute; inset: 0; background: rgba(0, 0, 0, .15); transition: background .4s, backdrop-filter .4s; } .w-lock.up::before { background: rgba(0, 0, 0, .45); backdrop-filter: blur(14px); }
+.w-lock-time { position: absolute; left: 5vw; bottom: 12vh; display: flex; flex-direction: column; text-shadow: 0 2px 10px rgba(0, 0, 0, .5); transition: transform .4s, opacity .4s; } .w-lock-time b { font: 200 96px/1 "Segoe UI", sans-serif; } .w-lock-time span { font-size: 26px; font-weight: 300; margin-top: 8px; }
+.w-lock-hint { position: absolute; left: 0; right: 0; bottom: 4vh; text-align: center; opacity: .75; } .w-lock.up .w-lock-time, .w-lock.up .w-lock-hint { opacity: 0; transform: translateY(-40px); }
+.w-sign { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; animation: fade-in .4s; } .w-avatar { width: 150px; height: 150px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: rgba(255, 255, 255, .25); } .w-sign-name { font-size: 34px; font-weight: 300; }
+.w-sign-btn { padding: 8px 34px; border: 2px solid rgba(255, 255, 255, .5); background: rgba(255, 255, 255, .2); color: #fff; font-size: 15px; } .w-sign-btn:hover { background: rgba(255, 255, 255, .35); } .w-sign-off { position: absolute; right: 4vw; bottom: 5vh; border: 0; background: none; display: flex; padding: 8px; } .w-sign-off:hover { background: rgba(255, 255, 255, .2); }
+:is(.os-win10, .os-win8, .os-win11) .w-bye { background: #0a5fb0; }
+
+/* ============================================================ 11 */
+.os-win11 {
+  --font: "Segoe UI Variable", "Segoe UI", "Yu Gothic UI", Meiryo, "Hiragino Sans", sans-serif; --mono: "Cascadia Mono", Consolas, "MS Gothic", Menlo, monospace;
+  --app-bg: #f9f9f9; --app-fg: #1b1b1b; --bar-bg: #f3f3f3; --line: #e5e5e5; --hover: #eaeaea; --accent: #005fb8;
+  --field-bg: #fff; --field-fg: #1b1b1b; --field-border: #d1d1d1; --sel-bg: #005fb8; --sel-fg: #fff;
+  --menu-bg: #f9f9f9; --menu-fg: #1b1b1b; --menu-border: #e0e0e0; --menu-hi: #ebebeb; --menu-hi-fg: #1b1b1b;
+  --side-bg: #f3f3f3; --side-fg: #1b1b1b; --banner: linear-gradient(90deg, #0a57b5, #47a6f2); --icon-w: 82px; --icon-h: 82px; background: #000; font-size: 12.5px;
+}
+.wp-win11.wp-bloom { --wp: radial-gradient(ellipse 34% 46% at 50% 62%, #cfe9ff 0, rgba(120, 180, 255, .85) 30%, transparent 62%), radial-gradient(ellipse 30% 50% at 36% 66%, rgba(60, 120, 255, .9), transparent 60%), radial-gradient(ellipse 30% 50% at 64% 66%, rgba(40, 150, 255, .9), transparent 60%), radial-gradient(ellipse 26% 44% at 26% 76%, rgba(30, 80, 220, .85), transparent 60%), radial-gradient(ellipse 26% 44% at 74% 76%, rgba(20, 100, 230, .85), transparent 60%), linear-gradient(#dcefff, #a9cbf5 45%, #6ea6ee); }
+.wp-win11.wp-glow { --wp: radial-gradient(ellipse 70% 50% at 70% 60%, rgba(255, 120, 180, .7), transparent 65%), radial-gradient(ellipse 60% 50% at 25% 40%, rgba(90, 120, 255, .7), transparent 65%), linear-gradient(#1a1040, #2c1b66); }
+.wp-win11.wp-dusk { --wp: radial-gradient(ellipse 110% 40% at 50% 112%, #1a1f3a 0 60%, transparent 61%), linear-gradient(#27306a, #a5578d 60%, #f2a26b 88%, #ffd9a0); }
+.os-win11 .win-frame { border-radius: 8px; overflow: hidden; border: 1px solid rgba(0, 0, 0, .25); background: #f3f3f3; box-shadow: 0 16px 44px rgba(0, 0, 0, .38); } .os-win11 .win:not(.active) .win-frame { box-shadow: 0 6px 18px rgba(0, 0, 0, .22); }
+.os-win11 .win-title { height: 32px; padding-left: 10px; background: linear-gradient(90deg, #eef3f9, #f3f3f3); color: #1b1b1b; } .os-win11 .win:not(.active) .win-title { color: #8a8a8a; } .os-win11 .wb { height: 32px; } .os-win11 .wb-close:hover { background: #c42b1c; }
+.os-win11 .wb-max::before { border-radius: 2px; } .os-win11 .win.maximized .win-frame { border-radius: 0; }
+.os-win11 .btn { min-width: 78px; padding: 5px 14px; border: 1px solid #d0d0d0; border-bottom-color: #b8b8b8; border-radius: 4px; background: #fbfbfb; color: #1b1b1b; } .os-win11 .btn:hover { background: #f1f1f1; } .os-win11 .btn.default { background: #005fb8; border-color: #005fb8; color: #fff; } .os-win11 .btn:focus-visible { outline: 2px solid #1b1b1b; outline-offset: 1px; }
+.os-win11 .menu { border-radius: 8px; padding: 4px; box-shadow: 0 8px 24px rgba(0, 0, 0, .25); } .os-win11 .menu-item { border-radius: 4px; padding: 6px 18px 6px 6px; } .os-win11 .menubar-item { border-radius: 4px; padding: 4px 8px; }
+.os-win11 :is(.input, .tbtn) { border-radius: 4px; } .os-win11 .input { padding: 5px 8px; border-bottom-color: #868686; } .os-win11 .input:focus { border-bottom: 2px solid #005fb8; padding-bottom: 4px; }
+.os-win11 .fm-item.sel, .os-win11 .fm-place.cur, .os-win11 .desk-icon.sel { border-radius: 4px; } .os-win11 .toolbar { padding: 5px 6px; }
+.os-win11 .taskbar { position: relative; height: 48px; align-items: center; color: #1b1b1b; background: rgba(243, 243, 243, .86); backdrop-filter: blur(20px) saturate(1.4); border-top: 1px solid rgba(0, 0, 0, .1); }
+.os-win11 .tb-main { display: flex; align-items: center; gap: 3px; position: absolute; left: 50%; transform: translateX(-50%); height: 100%; }
+.os-win11 .start-btn { width: 40px; height: 40px; padding: 0; justify-content: center; border-radius: 4px; background: none; box-shadow: none; filter: none; } .os-win11 .start-btn:hover, .os-win11 .start-btn.open { background: rgba(255, 255, 255, .75); } .os-win11 .start-btn svg { filter: sepia(1) hue-rotate(175deg) saturate(6) brightness(.85); }
+.os-win11 .tasks { display: flex; gap: 3px; }
+.os-win11 .task { position: relative; width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid transparent; border-radius: 4px; background: none; } .os-win11 .task:hover { background: rgba(255, 255, 255, .7); }
+.os-win11 .task.running::after { content: ''; position: absolute; left: 50%; bottom: 1px; width: 6px; height: 3px; margin-left: -3px; border-radius: 2px; background: #8a8a8a; transition: width .15s, margin .15s; } .os-win11 .task.active { background: rgba(255, 255, 255, .8); border-color: rgba(0, 0, 0, .06); } .os-win11 .task.active::after { width: 16px; margin-left: -8px; background: #005fb8; }
+.os-win11 .tray { position: absolute; right: 0; top: 0; bottom: 0; background: none; box-shadow: none; border: 0; padding: 0; gap: 2px; align-items: center; color: #1b1b1b; } .os-win11 .tray-btn { width: 28px; height: 32px; border-radius: 4px; } .os-win11 .tray-btn:hover, .os-win11 .tray-clock:hover { background: rgba(255, 255, 255, .7); }
+.os-win11 .tray-clock { align-items: flex-end !important; border-radius: 4px; height: 40px; justify-content: center; } .os-win11 .tb-peek { width: 6px; background: none; border-left: 1px solid transparent; } .os-win11 .tb-peek:hover { border-left-color: #999; }
+.os-win11 .note { background: rgba(249, 249, 249, .96); color: #1b1b1b; border: 1px solid rgba(0, 0, 0, .15); border-radius: 8px; box-shadow: 0 10px 30px rgba(0, 0, 0, .3); animation: w-toast .3s ease-out; }
+.sm11 { left: 50%; bottom: 60px; width: 600px; max-width: calc(100% - 16px); height: 640px; max-height: calc(100% - 72px); margin-left: -300px; display: flex; flex-direction: column; gap: 10px; padding: 26px 30px 0; border-radius: 9px; border: 1px solid rgba(0, 0, 0, .14); background: rgba(243, 243, 243, .93); backdrop-filter: blur(30px) saturate(1.5); color: #1b1b1b; box-shadow: 0 18px 50px rgba(0, 0, 0, .4); overflow: hidden; }
+@media (max-width: 620px) { .sm11 { left: 8px; margin-left: 0; } }
+.sm11 .sm-search { padding: 9px 16px; border-radius: 18px; border: 1px solid #d6d6d6; border-bottom-color: #9a9a9a; background: #fbfbfb; color: #1b1b1b; } .sm11-h { font-weight: 600; margin-top: 8px; }
+.sm11-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; overflow: auto; } .sm11-app { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 2px; border: 0; border-radius: 4px; background: none; color: inherit; font-size: 12px; line-height: 1.2; } .sm11-app:hover, .sm11-file:hover, .sm11-user:hover, .sm11-power:hover { background: rgba(255, 255, 255, .75); }
+.sm11-rec { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; flex: 1; align-content: start; } .sm11-file { display: flex; align-items: center; gap: 10px; padding: 8px; border: 0; border-radius: 4px; background: none; color: inherit; text-align: left; } .sm11-file b { display: block; font-weight: 600; } .sm11-file small { opacity: .65; }
+.sm11-foot { display: flex; justify-content: space-between; align-items: center; margin: 0 -30px; padding: 10px 44px; background: rgba(0, 0, 0, .04); border-top: 1px solid rgba(0, 0, 0, .08); } .sm11-user { display: flex; align-items: center; gap: 10px; border: 0; background: none; color: inherit; padding: 6px 10px; border-radius: 4px; } .sm11-user svg { border-radius: 50%; } .sm11-power { border: 0; background: none; display: flex; padding: 8px; border-radius: 4px; }
+.w10-boot.w11 svg { filter: sepia(1) hue-rotate(175deg) saturate(5); } .os-win11 .w-sign-btn { border-radius: 4px; border-width: 1px; } .os-win11 .w-lock-time { left: 0; right: 0; top: 14vh; bottom: auto; align-items: center; } .os-win11 .w-lock-time b { font-weight: 600; font-size: 104px; }

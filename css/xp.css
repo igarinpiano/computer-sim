@@ -75,9 +75,9 @@
 .os-xp .fm-group-title { background: linear-gradient(90deg, #fff, #c6d3f7); color: #215dc6; padding: 5px 10px; }
 .os-xp .fm-place, .os-xp .fm-detail { color: #215dc6; } .os-xp .fm-detail { color: #000; }
 .os-xp .fm-list.view-icons { --fm-cell: 80px; }
-.os-xp .term-xp { --term-fg: #c0c0c0; --term-bg: #000; font: 14px/1.2 "MS Gothic", "Lucida Console", Consolas, Menlo, monospace; }
-.os-xp .term-xp .term-scroll .term-cursor { background: transparent; color: inherit; box-shadow: inset 0 -3px 0 var(--term-fg); }
-.os-xp .term-xp .term-scroll { scrollbar-color: #888 #222; }
+.term-xp { --term-fg: #c0c0c0; --term-bg: #000; font: 14px/1.2 "MS Gothic", "Lucida Console", Consolas, Menlo, monospace; }
+.term-xp .term-scroll .term-cursor { background: transparent; color: inherit; box-shadow: inset 0 -3px 0 var(--term-fg); }
+.term-xp .term-scroll { scrollbar-color: #888 #222; }
 .os-xp .set-xp .set-nav { border-right: 1px solid #5a6fd0; } .os-xp .set-nav-item { color: #fff; } .os-xp .set-nav-item:hover { background: rgba(255, 255, 255, .2); } .os-xp .set-nav-item.on { background: #fff; color: #215dc6; }
 .os-xp .desk-icon.sel .desk-label { background: #0b61ff; }
 

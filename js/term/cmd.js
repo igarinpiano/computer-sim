@@ -17,14 +17,18 @@ const GUI = { notepad: 'editor', calc: 'calc', explorer: 'files', mspaint: 'pain
 const HELP = [['ATTRIB', 'ファイルの属性を表示します。'], ['CALL', 'バッチ プログラムを別のバッチ プログラムから呼び出します。'], ['CD', '現在のディレクトリを表示または変更します。'], ['CHKDSK', 'ディスクをチェックし、現在の状態を表示します。'], ['CLS', '画面を消去します。'], ['CMD', 'Windows コマンド インタープリタを新しく起動します。'], ['COLOR', 'コンソールの文字と背景の既定の色を設定します。'], ['COPY', '1 個以上のファイルを別の場所にコピーします。'], ['DATE', '日付を表示または設定します。'], ['DEL', '1 個以上のファイルを削除します。'], ['DIR', 'ディレクトリ中のファイルやサブディレクトリを一覧表示します。'], ['DOSKEY', 'コマンド ラインの履歴を表示します。'], ['ECHO', 'メッセージを表示したり、コマンド エコーの ON と OFF を切り替えます。'], ['EDIT', 'テキスト エディタを起動します。'], ['EXIT', 'CMD.EXE プログラム (コマンド インタープリタ) を終了します。'], ['FIND', 'ファイルの中からテキスト文字列を検索します。'], ['FINDSTR', 'ファイルの中から文字列を検索します。'], ['FOR', 'ファイルのセットの各ファイルに対して、指定されたコマンドを実行します。'], ['GOTO', 'バッチ プログラム内の、ラベルで指定されている行へ制御を移動します。'], ['HELP', 'Windows コマンドのヘルプ情報を提供します。'], ['IF', 'バッチ プログラム中で、条件処理を実行します。'], ['IPCONFIG', 'IP 構成を表示します。'], ['MD', 'ディレクトリを作成します。'], ['MORE', '出力を一度に 1 画面ずつ表示します。'], ['MOVE', '1 個以上のファイルをディレクトリから別のディレクトリに移動します。'], ['PATH', '実行可能ファイルの検索パスを表示または設定します。'], ['PAUSE', 'バッチ ファイルの処理を一時停止し、メッセージを表示します。'], ['PING', 'ネットワーク接続を確認します。'], ['PROMPT', 'Windows コマンド プロンプトを変更します。'], ['RD', 'ディレクトリを削除します。'], ['REM', 'バッチ ファイルや CONFIG.SYS に、コメント (注釈) を記録します。'], ['REN', 'ファイルの名前を変更します。'], ['SET', 'Windows 環境変数を表示、設定、または削除します。'], ['SHUTDOWN', 'コンピュータをシャットダウンします。'], ['SORT', '入力を並べ替えます。'], ['START', '別のウィンドウを起動して、指定されたプログラムまたはコマンドを実行します。'], ['SYSTEMINFO', 'コンピュータ固有のプロパティと構成を表示します。'], ['TASKLIST', '現在実行されているすべてのタスクを表示します。'], ['TASKKILL', '実行中のプロセスやアプリケーションを強制終了、または停止します。'], ['TIME', 'システム時刻を表示または設定します。'], ['TITLE', 'CMD.EXE セッションのウィンドウのタイトルを設定します。'], ['TREE', 'ドライブまたはパスのディレクトリ構造を図式表示します。'], ['TYPE', 'テキスト ファイルの内容を表示します。'], ['VER', 'Windows のバージョンを表示します。'], ['VIM', 'Vi IMproved - テキスト エディタを起動します。'], ['VOL', 'ディスクのボリューム ラベルとシリアル番号を表示します。'], ['XCOPY', 'ファイルとディレクトリ ツリーをコピーします。']];
 
 export class Cmd {
-  constructor({ term, fs, os = {}, dos = false, home = '/Documents and Settings/User', host = 'XP-PC', user = 'User' }) {
-    Object.assign(this, { term, fs, os, dos, home, host, user });
-    this.cwd = dos ? '/' : home;
+  // dos: COMMAND.COM personality (English messages, 8.3 listings); gui: programs like notepad can be launched;
+  // flavor: { ver, banner, osName, osVersion, cwd, whoami }
+  constructor({ term, fs, os = {}, dos = false, gui = !dos, flavor = {}, home = '/Documents and Settings/User', host = 'XP-PC', user = 'User' }) {
+    Object.assign(this, { term, fs, os, dos, gui, flavor, home, host, user });
+    this.cwd = flavor.cwd || (dos ? '/' : home);
     this.echo = true; this.status = 0; this.history = []; this.dirstack = []; this.started = Date.now();
     const W = p => 'C:' + p.replace(/\//g, '\\');
+    const nt6 = home.startsWith('/Users/');
     this.env = dos
-      ? { COMSPEC: 'C:\\DOS\\COMMAND.COM', PATH: 'C:\\DOS;C:\\VIM', PROMPT: '$P$G', TEMP: 'C:\\DOS' }
+      ? (gui ? { COMSPEC: 'C:\\WINDOWS\\COMMAND.COM', PATH: 'C:\\WINDOWS;C:\\WINDOWS\\COMMAND;C:\\VIM', PROMPT: '$p$g', TEMP: 'C:\\WINDOWS\\TEMP', TMP: 'C:\\WINDOWS\\TEMP', windir: 'C:\\WINDOWS', winbootdir: 'C:\\WINDOWS' } : { COMSPEC: 'C:\\DOS\\COMMAND.COM', PATH: 'C:\\DOS;C:\\VIM', PROMPT: '$P$G', TEMP: 'C:\\DOS' })
       : { ALLUSERSPROFILE: 'C:\\Documents and Settings\\All Users', APPDATA: W(home) + '\\Application Data', CommonProgramFiles: 'C:\\Program Files\\Common Files', COMPUTERNAME: host, ComSpec: 'C:\\WINDOWS\\system32\\cmd.exe', HOMEDRIVE: 'C:', HOMEPATH: home.replace(/\//g, '\\'), LOGONSERVER: '\\\\' + host, NUMBER_OF_PROCESSORS: '1', OS: 'Windows_NT', Path: 'C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\Program Files\\Vim\\vim82', PATHEXT: '.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH', PROCESSOR_ARCHITECTURE: 'x86', PROCESSOR_IDENTIFIER: 'x86 Family 6 Model 13 Stepping 8, GenuineBrowser', ProgramFiles: 'C:\\Program Files', PROMPT: '$P$G', SystemDrive: 'C:', SystemRoot: 'C:\\WINDOWS', TEMP: 'C:\\DOCUME~1\\User\\LOCALS~1\\Temp', TMP: 'C:\\DOCUME~1\\User\\LOCALS~1\\Temp', USERDOMAIN: host, USERNAME: user, USERPROFILE: W(home), windir: 'C:\\WINDOWS' };
+    if (nt6) Object.assign(this.env, { ALLUSERSPROFILE: 'C:\\ProgramData', APPDATA: W(home) + '\\AppData\\Roaming', LOCALAPPDATA: W(home) + '\\AppData\\Local', TEMP: W(home) + '\\AppData\\Local\\Temp', TMP: W(home) + '\\AppData\\Local\\Temp', PUBLIC: 'C:\\Users\\Public', ProgramData: 'C:\\ProgramData', 'ProgramFiles(x86)': 'C:\\Program Files (x86)', PROCESSOR_ARCHITECTURE: 'AMD64', NUMBER_OF_PROCESSORS: String((typeof navigator !== 'undefined' && navigator.hardwareConcurrency) || 4), Path: 'C:\\Windows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Program Files\\Vim\\vim82', SystemRoot: 'C:\\Windows', windir: 'C:\\Windows', ComSpec: 'C:\\Windows\\system32\\cmd.exe' });
   }
   t(jp, en) { return this.dos ? en : jp; }
 
@@ -56,7 +60,7 @@ export class Cmd {
   prompt() {
     return (this.getenv('PROMPT') || '$P$G').replace(/\$(.)/g, (m, c) => ({ p: this.win(this.cwd), g: '>', l: '<', n: 'C:', d: this.date(), t: this.getenv('TIME'), v: this.ver(), _: '\n', $: '$', b: '|', q: '=', s: ' ', e: '\x1b', h: '\b', a: '&', c: '(', f: ')' }[c.toLowerCase()] ?? ''));
   }
-  ver() { return this.dos ? 'MS-DOS Version 6.22' : 'Microsoft Windows XP [Version 5.1.2600]'; }
+  ver() { return this.flavor.ver || (this.dos ? 'MS-DOS Version 6.22' : 'Microsoft Windows XP [Version 5.1.2600]'); }
   glob(pattern) {   // -> [{ path, name }]; pattern is a Windows path possibly ending in wildcards
     const v = this.vfs(pattern);
     if (!/[*?]/.test(basename(v))) return this.fs.lstat(v) ? [{ path: v, name: basename(v) }] : [];
@@ -74,7 +78,7 @@ export class Cmd {
 
   async run() {
     const term = this.term;
-    term.write(this.dos ? '' : `${this.ver()}\n(C) Copyright 1985-2001 Microsoft Corp.\n`);
+    term.write(this.flavor.banner ?? (this.dos ? '' : `${this.ver()}\n(C) Copyright 1985-2001 Microsoft Corp.\n`));
     if (this.autorun) { const c = this.autorun; this.autorun = null; term.write(`\n${this.prompt()}${c}\n`); this.history.push(c); await this.top(c); }
     while (!this.exited) {
       const line = await term.readLine({ prompt: (this.echo ? '\n' + this.prompt() : ''), history: this.history, cycle: true, escClears: true, complete: l => this.complete(l) });
@@ -204,7 +208,7 @@ export class Cmd {
     ctx.has = s => ctx.sw.some(x => x === s || x.startsWith(s + ':'));
     const fn = COMMANDS[ctx.name];
     try {
-      if (fn && !(this.dos && WIN_ONLY.has(ctx.name))) {
+      if (fn && !(this.dos && WIN_ONLY.has(ctx.name) && !(this.gui && ctx.name === 'start')) && !(ctx.name === 'whoami' && !this.flavor.whoami)) {
         if (ctx.sw.includes('/?') && ctx.name !== 'echo') { const h = HELP.find(x => x[0].toLowerCase() === ctx.name); out((h ? h[1] : ctx.name.toUpperCase()) + '\n\n' + ctx.name.toUpperCase() + this.t(' [オプション]\n', ' [options]\n')); this.status = 0; return; }
         const st = await fn.call(this, ctx);
         if (typeof st === 'number') this.status = st;
@@ -222,13 +226,13 @@ export class Cmd {
 
   async external(name, ctx) {
     const base = name.toLowerCase().replace(/\.(exe|com)$/, '');
-    if (!this.dos && GUI[base] && !/[\\/]/.test(name)) {
+    if (this.gui && GUI[base] && !/[\\/]/.test(name)) {
       if (!this.os.launch) { ctx.err('このシステムではウィンドウを開けません。\n'); this.status = 1; return; }
       const f = ctx.files[0];
       this.os.launch(GUI[base], base === 'iexplore' ? { url: f } : f ? { path: this.vfs(f) } : base === 'explorer' ? { path: this.cwd } : base === 'cmd' ? { cwd: this.cwd } : {});
       this.status = 0; return;
     }
-    if (base === 'win' && this.dos) { ctx.out('\nStarting Windows...\n'); await this.sleep(900); if (this.os.power) this.os.power('xp'); await this.sleep(5000); return; }
+    if (base === 'win' && this.dos && !this.gui) { ctx.out('\nStarting Windows...\n'); await this.sleep(900); if (this.os.power) this.os.power('xp'); await this.sleep(5000); return; }
     // batch files and documents on disk
     for (const cand of [name, name + '.bat', name + '.cmd']) {
       let p;
@@ -238,7 +242,7 @@ export class Cmd {
       const ext = extname(p);
       if (ext === 'bat' || ext === 'cmd') return this.batch(n.d, [cand, ...ctx.argv.map(a => a.replace(/^"(.*)"$/, '$1'))], ctx.io);
       if (ext === 'exe' || ext === 'com') { if (COMMANDS[basename(p).replace(/\.\w+$/, '').toLowerCase()]) return COMMANDS[basename(p).replace(/\.\w+$/, '').toLowerCase()].call(this, ctx); ctx.err(this.t(`${this.win(p)} は有効な Win32 アプリケーションではありません。\n`, 'Cannot execute ' + cand + '\n')); this.status = 1; return; }
-      if (this.os.openPath && !this.dos) { this.os.openPath(p); this.status = 0; return; }
+      if (this.os.openPath && this.gui) { this.os.openPath(p); this.status = 0; return; }
     }
     ctx.err(this.t(`'${name}' は、内部コマンドまたは外部コマンド、\n操作可能なプログラムまたはバッチ ファイルとして認識されていません。\n`, 'Bad command or file name\n'));
     this.status = this.dos ? 1 : 9009;
@@ -573,6 +577,7 @@ const COMMANDS = {
     c.out(ls.join('\n') + '\n');
   },
   hostname(c) { c.out(this.host + '\n'); },
+  whoami(c) { c.out(`${this.host.toLowerCase()}\\${this.user.toLowerCase()}\n`); },
   help(c) {
     if (c.files[0]) { const h = HELP.find(x => x[0].toLowerCase() === c.files[0].toLowerCase()); if (h) return void c.out(h[1] + '\n'); c.out('このコマンドは、ヘルプ ユーティリティではサポートされていません。\n'); return 1; }
     c.out(this.t('特定のコマンドの詳細情報は、"HELP コマンド名" を入力してください\n', 'For more information on a specific command, type HELP command-name\n'));
@@ -665,7 +670,7 @@ const COMMANDS = {
   systeminfo: async function (c) {
     c.out('\n'); await this.sleep(500);
     const up = Date.now() - (this.os.bootTime || this.started), h = Math.floor(up / 36e5), mi = Math.floor(up / 6e4) % 60, s = Math.floor(up / 1000) % 60;
-    c.out(`ホスト名:               ${this.host}\nOS 名:                  Microsoft Windows XP Professional\nOS バージョン:          5.1.2600 Service Pack 3 ビルド 2600\nOS 製造元:              Microsoft Corporation\nOS 構成:                スタンドアロン ワークステーション\nOS ビルドの種類:        Uniprocessor Free\n登録されている所有者:   ${this.user}\nプロダクト ID:          00000-000-0000000-00000\nシステム起動時間:       0 日 ${h} 時間 ${mi} 分 ${s} 秒\nシステム製造元:         Browser Virtual Machines\nシステム モデル:        WebPC-2001\nシステムの種類:         X86-based PC\nプロセッサ:             1 プロセッサインストール済みです。\n                        [01]: x86 Family 6 Model 13 Stepping 8 GenuineBrowser ~1700 Mhz\nBIOS バージョン:        WEBBIOS - 20011025\nWindows ディレクトリ:   C:\\WINDOWS\nシステム ディレクトリ:  C:\\WINDOWS\\system32\n起動デバイス:           \\Device\\HarddiskVolume1\nシステム ロケール:      ja;日本語\n入力ロケール:           ja;日本語\nタイム ゾーン:          (GMT+09:00) 大阪、札幌、東京\n物理メモリの合計:       512 MB\n利用可能な物理メモリ:   298 MB\n仮想メモリ: 最大サイズ: 2,048 MB\nドメイン:               WORKGROUP\nログオン サーバー:      \\\\${this.host}\nホットフィックス:       1 ホットフィックスがインストールされています。\n                        [01]: Q147222\nネットワーク カード:    1 NIC(s) インストール済みです。\n                        [01]: Fetch API Fast Ethernet Adapter\n`);
+    c.out(`ホスト名:               ${this.host}\nOS 名:                  ${this.flavor.osName || 'Microsoft Windows XP Professional'}\nOS バージョン:          ${this.flavor.osVersion || '5.1.2600 Service Pack 3 ビルド 2600'}\nOS 製造元:              Microsoft Corporation\nOS 構成:                スタンドアロン ワークステーション\nOS ビルドの種類:        Uniprocessor Free\n登録されている所有者:   ${this.user}\nプロダクト ID:          00000-000-0000000-00000\nシステム起動時間:       0 日 ${h} 時間 ${mi} 分 ${s} 秒\nシステム製造元:         Browser Virtual Machines\nシステム モデル:        WebPC-2001\nシステムの種類:         X86-based PC\nプロセッサ:             1 プロセッサインストール済みです。\n                        [01]: x86 Family 6 Model 13 Stepping 8 GenuineBrowser ~1700 Mhz\nBIOS バージョン:        WEBBIOS - 20011025\nWindows ディレクトリ:   C:\\WINDOWS\nシステム ディレクトリ:  C:\\WINDOWS\\system32\n起動デバイス:           \\Device\\HarddiskVolume1\nシステム ロケール:      ja;日本語\n入力ロケール:           ja;日本語\nタイム ゾーン:          (GMT+09:00) 大阪、札幌、東京\n物理メモリの合計:       512 MB\n利用可能な物理メモリ:   298 MB\n仮想メモリ: 最大サイズ: 2,048 MB\nドメイン:               WORKGROUP\nログオン サーバー:      \\\\${this.host}\nホットフィックス:       1 ホットフィックスがインストールされています。\n                        [01]: Q147222\nネットワーク カード:    1 NIC(s) インストール済みです。\n                        [01]: Fetch API Fast Ethernet Adapter\n`);
   },
   tasklist(c) {
     c.out('\nイメージ名                   PID セッション名     セッション# メモリ使用量\n========================= ====== ================ ======== ============\n');

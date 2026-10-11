@@ -10,11 +10,11 @@ import { Terminal } from '../term/terminal.js';
 export function terminal(os, args = {}) {
   const host = h('div', { class: 'term-host' });
   const wrap = h('div', { class: 'app-col' });
-  const win = os.wm.open({ title: os.L.terminal, icon: os.id === 'dos' ? 'dos' : 'terminal', app: 'terminal', width: 700, height: 440, minW: 320, minH: 160, content: wrap });
-  const term = new Terminal(host, { class: 'term-' + os.id, palette: os.termPalette });
+  const win = os.wm.open({ title: os.L.terminal, icon: 'terminal', app: 'terminal', width: 700, height: 440, minW: 320, minH: 160, content: wrap });
+  const term = new Terminal(host, { class: os.termClass || 'term-' + os.id, palette: os.termPalette, light: !!os.termLight });
   const paste = () => navigator.clipboard?.readText().then(t => { term.sendText(t); term.focus(); }).catch(() => os.notify(os.L.terminal, 'クリップボードを読み取れませんでした。ブラウザの許可を確認してください。'));
   const copy = () => navigator.clipboard?.writeText(String(getSelection())).catch(() => {});
-  if (os.id === 'mint') {
+  if (os.kind === 'linux') {
     wrap.append(menuBar(os, [
       { label: 'ファイル(F)', items: [{ label: '新しいウィンドウ', onClick: () => os.launch('terminal') }, '-', { label: 'ウィンドウを閉じる', onClick: () => win.close() }] },
       { label: '編集(E)', items: [{ label: 'コピー', hint: 'Shift+Ctrl+C', onClick: copy }, { label: '貼り付け', hint: 'Shift+Ctrl+V', onClick: paste }] },
@@ -36,7 +36,7 @@ export function terminal(os, args = {}) {
   win.on('focus', () => term.focus());
   win.on('close', () => { term.destroy(); if (sh.interrupt) sh.interrupt(); sh.exited = true; });
   const sh = os.shell(term, args);
-  win.proc = { cmd: os.id === 'mint' ? '/usr/libexec/gnome-terminal-server' : 'cmd.exe', exe: 'cmd.exe' };
+  win.proc = { cmd: os.kind === 'linux' ? '/usr/libexec/gnome-terminal-server' : os.kind === 'mac' ? 'Terminal' : 'cmd.exe', exe: 'cmd.exe' };
   sh.run().then(() => win.close(true), e => { console.error(e); win.close(true); });
   setTimeout(() => term.focus(), 50);
   return win;
@@ -44,7 +44,7 @@ export function terminal(os, args = {}) {
 
 // ---------------------------------------------------------------- text editor
 export function editor(os, args = {}) {
-  const fs = os.fs, xp = os.id !== 'mint';
+  const fs = os.fs, xp = os.kind === 'win';
   let path = null, saved = '', wrapOn = os.store.get('editor.wrap', true);
   const ta = h('textarea', { class: 'editor-text', spellcheck: 'false', wrap: wrapOn ? 'soft' : 'off' });
   const status = h('div', { class: 'statusbar' });
@@ -131,7 +131,7 @@ export function viewer(os, args = {}) {
   const tools = h('div', { class: 'toolbar' }, button('◀ 前へ', () => step(-1)), button('次へ ▶', () => step(1)), button('＋', () => { zoom *= 1.25; img.style.transform = `scale(${zoom})`; }), button('－', () => { zoom /= 1.25; img.style.transform = `scale(${zoom})`; }), button('1:1', () => { zoom = 1; img.style.transform = ''; }),
     button('開く...', async () => { const p = await fileDialog(os, { dir: path ? dirname(path) : os.pics }); if (p) show(p); }));
   const win = os.wm.open({ title: os.L.viewer, icon: 'image', app: 'viewer', width: 560, height: 440, content: h('div', { class: 'app-col' }, tools, stage, info) });
-  win.proc = { cmd: os.id === 'mint' ? 'xviewer' : 'rundll32.exe shimgvw.dll', exe: 'rundll32.exe' };
+  win.proc = { cmd: os.kind !== 'win' ? 'xviewer' : 'rundll32.exe shimgvw.dll', exe: 'rundll32.exe' };
   if (path) show(path); else info.textContent = '「開く...」から画像を選んでください';
   return win;
 }
@@ -169,7 +169,7 @@ export function calc(os) {
     if (/^[\d.+\-*/=%]$/.test(k) || ['←', 'C', 'CE'].includes(k)) { e.preventDefault(); press(k); }
   });
   const win = os.wm.open({ title: os.L.calc, icon: 'calc', app: 'calc', width: 262, height: 300, resizable: false, content });
-  win.proc = { cmd: os.id === 'mint' ? 'gnome-calculator' : 'calc.exe', exe: 'calc.exe' };
+  win.proc = { cmd: os.kind !== 'win' ? 'gnome-calculator' : 'calc.exe', exe: 'calc.exe' };
   win.on('focus', () => content.focus());
   setTimeout(() => { fit(win); content.focus(); }, 0);
   void evalArith;
@@ -178,7 +178,7 @@ export function calc(os) {
 
 // ---------------------------------------------------------------- task manager
 export function taskmgr(os) {
-  const xp = os.id !== 'mint';
+  const xp = os.kind === 'win';
   const tbody = h('tbody');
   const table = h('table', { class: 'grid-table' }, h('thead', null, h('tr', null, ...(xp ? ['イメージ名', 'PID', 'ユーザー名', 'CPU', 'メモリ使用量'] : ['プロセス名', 'ユーザー', '% CPU', 'ID', 'メモリー']).map(t => h('th', null, t)))), tbody);
   const canvas = h('canvas', { class: 'tm-graph', width: 300, height: 70 });

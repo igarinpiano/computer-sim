@@ -383,10 +383,12 @@ const takeLine = r => {
 
 // ---------------------------------------------------------------- shell
 export class Bash {
-  constructor({ term, fs, os = {}, user = 'user', host = 'mint-pc', home = '/home/user' }) {
+  // flavor: { shell: 'bash'|'zsh', family: 'debian'|'arch'|'mac', homeBase, env, ps1, rc, hist, pkgFile }
+  constructor({ term, fs, os = {}, user = 'user', host = 'mint-pc', home = '/home/user', flavor = {} }) {
     Object.assign(this, { term, fs, os, user, host, home });
+    this.flavor = { shell: 'bash', family: 'debian', homeBase: '/home', rc: '.bashrc', hist: '.bash_history', pkgFile: '/var/lib/dpkg/status', ...flavor };
     this.vars = new Map(); this.exported = new Set(); this.aliases = new Map(); this.funcs = new Map();
-    this.cwd = home; this.status = 0; this.params = []; this.name0 = 'bash';
+    this.cwd = home; this.status = 0; this.params = []; this.name0 = this.flavor.family === 'mac' ? '-' + this.flavor.shell : 'bash';
     this.history = []; this.jobs = []; this.dirstack = []; this.locals = []; this.users = [];
     this.wakers = new Set(); this.sudoUntil = 0; this.started = Date.now(); this.pid = 2000 + Math.floor(Math.random() * 3000);
     const env = {
@@ -395,7 +397,8 @@ export class Bash {
       DISPLAY: ':0', XDG_CURRENT_DESKTOP: 'X-Cinnamon', XDG_SESSION_TYPE: 'x11', DESKTOP_SESSION: 'cinnamon', COLORTERM: 'truecolor',
     };
     for (const [k, v] of Object.entries(env)) { this.vars.set(k, v); this.exported.add(k); }
-    this.vars.set('PS1', '\\u@\\h:\\w\\$ '); this.vars.set('PS2', '> '); this.vars.set('IFS', ' \t\n');
+    for (const [k, v] of Object.entries(this.flavor.env || {})) { if (v === null) { this.vars.delete(k); this.exported.delete(k); } else { this.vars.set(k, v); this.exported.add(k); } }
+    this.vars.set('PS1', this.flavor.ps1 || '\\u@\\h:\\w\\$ '); this.vars.set('PS2', '> '); this.vars.set('IFS', ' \t\n');
   }
 
   // ---- variables
@@ -471,7 +474,7 @@ export class Bash {
       else if (c === '$' || c === '`') { const [next] = await dollar(i, false); i = next - 1; }
       else if (c === '~' && i === 0 && tilde) {
         const m = /^~([A-Za-z0-9_+-]*)(?=\/|$)/.exec(raw);
-        if (m) { lit(m[1] === '' ? this.get('HOME') : m[1] === '+' ? this.cwd : m[1] === '-' ? this.get('OLDPWD') : m[1] === 'root' ? '/root' : '/home/' + m[1], true); i = m[0].length - 1; }
+        if (m) { lit(m[1] === '' ? this.get('HOME') : m[1] === '+' ? this.cwd : m[1] === '-' ? this.get('OLDPWD') : m[1] === 'root' ? this.rootHome() : this.flavor.homeBase + '/' + m[1], true); i = m[0].length - 1; }
         else lit(c, false);
       }
       else lit(c, false);
@@ -604,7 +607,8 @@ export class Bash {
   restore(s) { Object.assign(this, s); }
 
   // ---- execution
-  ttySink() { return { tty: true, write: s => this.term.write(s) }; }
+  rootHome() { return this.flavor.family === 'mac' ? '/var/root' : '/root'; }
+  ttySink() { return this.flavor.shell === 'zsh' ? { tty: true, write: s => this.term.write(s.replace(/(^|\n)bash: /g, '$1zsh: ')) } : { tty: true, write: s => this.term.write(s) }; }
   ttyIO() { const s = this.ttySink(); return { in: null, out: s, err: s }; }
   check() { if (this.abort) throw new Interrupt(); }
   interrupt() { this.abort = true; for (const w of [...this.wakers]) w(); }
@@ -793,12 +797,13 @@ export class Bash {
   }
 
   hasCmd(name) {
-    const c = commands[name];
-    return !!c && (!c.pkg || this.pkgs().has(c.pkg));
+    const c = commands[name], fam = this.flavor.family;
+    if (!c || (c.only && !c.only.includes(fam)) || (c.not && c.not.includes(fam))) return false;
+    return !c.pkg || this.pkgs().has(c.pkg);
   }
   pkgs() {
     let s = '';
-    try { s = this.fs.stat('/var/lib/dpkg/status')?.d || ''; } catch { /* ignore */ }
+    try { s = this.fs.stat(this.flavor.pkgFile)?.d || ''; } catch { /* ignore */ }
     return new Set([...s.matchAll(/^Package: (\S+)/gm)].map(m => m[1]));
   }
 
@@ -812,8 +817,11 @@ export class Bash {
       const p = join(dir || '.', name), n = this.fs.stat(this.abs(p));
       if (n && n.t === 'f' && (n.m & 0o111) && !n.d.startsWith('\x7fELF')) return this.runFile(p, args, io);
     }
-    const c = commands[name];
-    if (c && c.pkg) io.err.write(`Command '${name}' not found, but can be installed with:\nsudo apt install ${c.pkg}\n`);
+    const c = commands[name], fam = this.flavor.family;
+    if (this.flavor.shell === 'zsh') io.err.write(`zsh: command not found: ${name}\n`);
+    else if (fam === 'mac') io.err.write(`-bash: ${name}: command not found\n`);
+    else if (fam === 'arch') io.err.write(`bash: ${name}: command not found\n`);
+    else if (c && c.pkg && (!c.only || c.only.includes(fam))) io.err.write(`Command '${name}' not found, but can be installed with:\nsudo apt install ${c.pkg}\n`);
     else io.err.write(`${name}: command not found\n`);
     return 127;
   }
@@ -918,9 +926,9 @@ export class Bash {
 
   // ---- interactive loop
   async init() {
-    try { this.history = this.fs.read(this.home + '/.bash_history').split('\n').filter(Boolean).slice(-500); } catch { /* none */ }
-    const rc = this.fs.stat(this.home + '/.bashrc');
-    if (rc && rc.t === 'f') { try { await this.runScript(rc.d, '.bashrc', [], this.ttyIO(), false); } catch (e) { if (!(e instanceof ShellExit)) console.error(e); } }
+    try { this.history = this.fs.read(this.home + '/' + this.flavor.hist).split('\n').filter(Boolean).slice(-500); } catch { /* none */ }
+    const rc = this.fs.stat(this.home + '/' + this.flavor.rc);
+    if (rc && rc.t === 'f') { try { await this.runScript(rc.d, this.flavor.rc, [], this.ttyIO(), false); } catch (e) { if (!(e instanceof ShellExit)) console.error(e); } }
   }
   async prompt() {
     let p = this.get('PS1').replace(/\\\[|\\\]/g, '').replace(/\\(\d{3}|.)/gs, (m, c) => {
@@ -943,7 +951,7 @@ export class Bash {
     this.history.push(line);
     if (this.history.length > 500) this.history.shift();
     const u = this.fs.user; this.fs.user = 'root';
-    try { this.fs.write(this.home + '/.bash_history', this.history.join('\n') + '\n'); } catch { /* read-only home */ }
+    try { this.fs.write(this.home + '/' + this.flavor.hist, this.history.join('\n') + '\n'); } catch { /* read-only home */ }
     this.fs.user = u;
   }
   histExpand(src) {
@@ -1015,7 +1023,7 @@ export class Bash {
   pushUser(user, login) {
     this.users.push({ user: this.user, fsUser: this.fs.user, home: this.get('HOME'), cwd: this.cwd, ps1: this.get('PS1') });
     this.user = this.fs.user = user;
-    const home = user === 'root' ? '/root' : '/home/' + user;
+    const home = user === 'root' ? this.rootHome() : this.flavor.homeBase + '/' + user;
     for (const k of ['USER', 'LOGNAME']) this.set(k, user);
     this.set('HOME', home);
     if (login) { this.cwd = home; this.set('PWD', home); }
@@ -1310,7 +1318,7 @@ const BUILTINS = {
     if (this.user !== 'root' && Date.now() > this.sudoUntil) {
       let ok = false;
       for (let k = 0; k < 3 && !ok; k++) {
-        const pw = await this.term.readLine({ prompt: `[sudo] password for ${this.user}: `, mask: true });
+        const pw = await this.term.readLine({ prompt: this.flavor.family === 'mac' ? 'Password:' : `[sudo] password for ${this.user}: `, mask: true });
         if (pw === INTR) { this.abort = true; throw new Interrupt(); }
         if (pw) ok = true; else if (k < 2) io.err.write('Sorry, try again.\n');
       }
@@ -1341,7 +1349,7 @@ const BUILTINS = {
       await this.sleep(1200);
       io.err.write('su: Authentication failure\n'); return 1;
     }
-    if (target !== 'root' && !this.fs.isDir('/home/' + target)) { io.err.write(`su: user ${target} does not exist or the user entry does not contain all the required fields\n`); return 1; }
+    if (target !== 'root' && !this.fs.isDir(this.flavor.homeBase + '/' + target)) { io.err.write(`su: user ${target} does not exist or the user entry does not contain all the required fields\n`); return 1; }
     this.pushUser(target, args.includes('-') || args.includes('-l'));
     return 0;
   },

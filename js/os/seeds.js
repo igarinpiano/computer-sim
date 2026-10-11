@@ -240,3 +240,163 @@ export function dosSeed(b) {
   b.file('/DOCS/HELLO.BAT', '@ECHO OFF\nECHO Hello from a batch file!\nFOR %%I IN (1 2 3) DO ECHO   LOOP %%I\nPAUSE\n');
   b.file('/DOCS/MEMO.TXT', 'C:\\> の点滅するカーソルから、すべてが始まりました。\n');
 }
+
+// ---------------------------------------------------------------- more Windows generations
+const winReadme = (title, tips) => `${title} へようこそ！
+${'='.repeat(40)}
+
+これはブラウザの中で動く再現シミュレータです (非公式)。
+
+${tips}
+
+■ コマンド プロンプトで使えるもの
+    dir /w   cd   type   copy   move   del   ren   md   rd   tree /f
+    echo Hello > test.txt     set   if / for / goto   *.bat
+    vim memo.txt   edit memo.txt   help
+
+${README_COMMON}`;
+const SAMPLE_BAT = '@echo off\nrem バッチ ファイルのサンプル\nset NAME=%1\nif "%NAME%"=="" set NAME=World\necho Hello, %NAME%!\nfor %%i in (1 2 3) do echo   %%i 回目のループ\nif exist memo.txt (echo memo.txt があります。) else (echo memo.txt はありません。)\n';
+const EXES = ['notepad.exe', 'calc.exe', 'mspaint.exe', 'winmine.exe', 'taskmgr.exe', 'cmd.exe', 'find.exe', 'sort.exe', 'xcopy.exe', 'attrib.exe', 'ping.exe', 'ipconfig.exe', 'kernel32.dll', 'user32.dll', 'gdi32.dll', 'shell32.dll'];
+
+export function winSeed(b, era) {
+  if (era === '31') {
+    for (const d of ['/WINDOWS/SYSTEM', '/WINDOWS/DESKTOP', '/WINDOWS/TEMP/DELETED', '/DOS', '/VIM', '/DOCS/PICTURES']) b.dir(d);
+    for (const f of ['PROGMAN.EXE', 'WINFILE.EXE', 'NOTEPAD.EXE', 'PBRUSH.EXE', 'CALC.EXE', 'WINMINE.EXE', 'CONTROL.EXE', 'WIN.COM']) b.file('/WINDOWS/' + f, 'MZ\x90\x00');
+    for (const f of ['KRNL386.EXE', 'USER.EXE', 'GDI.EXE', 'VGA.DRV']) b.file('/WINDOWS/SYSTEM/' + f, 'MZ\x90\x00');
+    for (const f of ['COMMAND.COM', 'EDIT.COM', 'FORMAT.COM', 'MEM.EXE', 'HIMEM.SYS']) b.file('/DOS/' + f, 'MZ\x90\x00');
+    b.file('/WINDOWS/WIN.INI', '[windows]\nload=\nrun=\nBeep=yes\n\n[Desktop]\nPattern=(None)\nWallpaper=(None)\n');
+    b.file('/WINDOWS/SYSTEM.INI', '[boot]\nshell=progman.exe\nnetwork.drv=\n\n[386Enh]\n32BitDiskAccess=OFF\n');
+    b.file('/WINDOWS/PROGMAN.INI', '[Settings]\nWindow=68 48 580 384 1\nAutoArrange=1\n\n[Groups]\nGroup1=C:\\WINDOWS\\MAIN.GRP\nGroup2=C:\\WINDOWS\\ACCESSOR.GRP\nGroup3=C:\\WINDOWS\\GAMES.GRP\n');
+    b.file('/AUTOEXEC.BAT', '@ECHO OFF\nPROMPT $P$G\nPATH C:\\WINDOWS;C:\\DOS;C:\\VIM\nSET TEMP=C:\\WINDOWS\\TEMP\nWIN\n');
+    b.file('/CONFIG.SYS', 'DEVICE=C:\\DOS\\HIMEM.SYS\nFILES=30\nBUFFERS=20\n');
+    b.file('/COMMAND.COM', 'MZ\x90\x00'); b.file('/VIM/VIM.EXE', 'MZ\x90\x00');
+    b.file('/DOCS/README.TXT', winReadme('Windows 3.1 風デスクトップ', '■ 使い方\n  ・プログラム マネージャのアイコンをダブルクリックするとアプリが起動します。\n  ・最小化したウィンドウは画面の下にアイコンとして並びます。\n  ・[ファイル] → [Windows の終了] で OS 選択画面に戻ります。'));
+    b.file('/DOCS/MEMO.TXT', 'プログラム マネージャとファイル マネージャの時代です。\nファイル名は 8 文字 + 拡張子 3 文字でした。\n');
+    b.file('/DOCS/HELLO.BAT', SAMPLE_BAT); b.file('/DOCS/FRUITS.TXT', 'banana\napple\ncherry\napple\ndate\n'); b.file('/DOCS/INDEX.HTM', HTML_SAMPLE);
+    b.file('/DOCS/PICTURES/HILLS.SVG', SVG_SAMPLE);
+    return;
+  }
+  if (era === '9x') {
+    for (const d of ['/WINDOWS/SYSTEM', '/WINDOWS/COMMAND', '/WINDOWS/Desktop', '/WINDOWS/Start Menu/Programs', '/WINDOWS/TEMP', '/WINDOWS/Favorites', '/My Documents/My Pictures', '/Program Files/Accessories', '/Program Files/Vim/vim82', '/RECYCLED']) b.dir(d);
+    for (const f of EXES) b.file('/WINDOWS/' + (f.endsWith('.dll') ? 'SYSTEM/' : '') + f.toUpperCase(), 'MZ\x90\x00');
+    for (const f of ['EXPLORER.EXE', 'WIN.COM', 'COMMAND.COM', 'REGEDIT.EXE']) b.file('/WINDOWS/' + f, 'MZ\x90\x00');
+    for (const f of ['EDIT.COM', 'FORMAT.COM', 'XCOPY.EXE', 'ATTRIB.EXE', 'MORE.COM']) b.file('/WINDOWS/COMMAND/' + f, 'MZ\x90\x00');
+    b.file('/WINDOWS/WIN.INI', '[windows]\nload=\nrun=\nNullPort=None\n'); b.file('/WINDOWS/SYSTEM.INI', '[boot]\nshell=Explorer.exe\n');
+    b.file('/AUTOEXEC.BAT', ''); b.file('/CONFIG.SYS', ''); b.file('/MSDOS.SYS', '[Paths]\nWinDir=C:\\WINDOWS\nWinBootDir=C:\\WINDOWS\nHostWinBootDrv=C\n\n[Options]\nBootGUI=1\n'); b.file('/COMMAND.COM', 'MZ\x90\x00');
+    b.file('/Program Files/Vim/vim82/vim.exe', 'MZ\x90\x00');
+    b.file('/WINDOWS/Desktop/はじめにお読みください.txt', winReadme('Windows 98 風デスクトップ', '■ 使い方\n  ・[スタート] → [プログラム] からアプリを起動できます。\n  ・[スタート] → [ファイル名を指定して実行] に command や notepad を入力できます。\n  ・[スタート] → [Windows の終了] で OS 選択画面に戻ります。'));
+    b.file('/My Documents/memo.txt', 'ダイヤルアップでつないで、テレホーダイの時間を待っていた頃。\n');
+    b.file('/My Documents/hello.bat', SAMPLE_BAT); b.file('/My Documents/fruits.txt', 'banana\napple\ncherry\napple\ndate\n'); b.file('/My Documents/index.html', HTML_SAMPLE);
+    b.file('/My Documents/My Pictures/草原.svg', SVG_SAMPLE); b.file('/My Documents/My Pictures/プロンプト.svg', SVG_LOGO);
+    return;
+  }
+  const home = '/Users/User', names = { win7: 'Windows 7', win8: 'Windows 8', win10: 'Windows 10', win11: 'Windows 11' };
+  for (const d of ['/Windows/System32/drivers/etc', '/Windows/Fonts', '/Windows/Temp', '/Program Files/Common Files', '/Program Files/Vim/vim82', '/Program Files (x86)', '/ProgramData', '/Users/Public/Documents', '/$Recycle.Bin',
+    home + '/Desktop', home + '/Documents', home + '/Downloads', home + '/Pictures', home + '/Music', home + '/Videos', home + '/Favorites', home + '/AppData/Local/Temp', home + '/AppData/Roaming']) b.dir(d);
+  for (const f of [...EXES, 'whoami.exe', 'tasklist.exe', 'taskkill.exe', 'shutdown.exe', 'systeminfo.exe', 'hostname.exe', 'tree.com', 'more.com', 'ntoskrnl.exe', 'hal.dll']) b.file('/Windows/System32/' + f, 'MZ\x90\x00');
+  b.file('/Windows/explorer.exe', 'MZ\x90\x00'); b.file('/Windows/notepad.exe', 'MZ\x90\x00'); b.file('/Windows/regedit.exe', 'MZ\x90\x00');
+  b.file('/Windows/System32/drivers/etc/hosts', '# Copyright (c) 1993-2009 Microsoft Corp.\n#\n# This is a sample HOSTS file used by Microsoft TCP/IP for Windows.\n#\n#\t127.0.0.1       localhost\n#\t::1             localhost\n');
+  b.file('/Windows/win.ini', '; for 16-bit app support\n[fonts]\n[extensions]\n[mci extensions]\n[files]\n[Mail]\nMAPI=1\n');
+  b.file('/Program Files/Vim/vim82/vim.exe', 'MZ\x90\x00'); b.file('/pagefile.sys', '');
+  b.file(home + '/_vimrc', '" _vimrc — Vim の設定ファイル\n"set number\n"set hlsearch\n"set expandtab shiftwidth=4 tabstop=4\n');
+  b.file(home + '/Desktop/はじめにお読みください.txt', winReadme(`${names[era] || 'Windows'} 風デスクトップ`, '■ 使い方\n  ・スタート メニューからアプリを起動できます (検索ボックスにも入力できます)。\n  ・スタート メニューの電源ボタンからシャットダウンすると、OS 選択画面に戻ります。\n  ・デスクトップを右クリック → [個人用設定] で壁紙を変更できます。'));
+  b.file(home + '/Documents/memo.txt', 'ドキュメント フォルダのメモです。\nメモ帳、ペイント、電卓はスタート メニューにあります。\n');
+  b.file(home + '/Documents/hello.bat', SAMPLE_BAT); b.file(home + '/Documents/fruits.txt', 'banana\napple\ncherry\napple\ndate\nbanana\napple\n'); b.file(home + '/Documents/index.html', HTML_SAMPLE);
+  b.file(home + '/Pictures/草原.svg', SVG_SAMPLE); b.file(home + '/Pictures/プロンプト.svg', SVG_LOGO);
+  b.file(home + '/Favorites/Wikipedia.url', '[InternetShortcut]\nURL=https://ja.wikipedia.org/\n');
+}
+
+// ---------------------------------------------------------------- Linux distributions (built on the Mint tree)
+export function linuxSeed(b, fs, d) {
+  mintSeed(b);
+  b.file('/etc/os-release', d.osRelease);
+  b.file('/etc/lsb-release', `DISTRIB_ID=${d.id}\nDISTRIB_RELEASE=${d.version}\nDISTRIB_CODENAME=${d.codename}\nDISTRIB_DESCRIPTION="${d.pretty}"\n`);
+  b.file('/etc/issue', `${d.pretty} \\n \\l\n\n`);
+  b.file('/etc/hostname', d.host + '\n');
+  b.file('/etc/hosts', `127.0.0.1\tlocalhost\n127.0.1.1\t${d.host}\n\n::1     ip6-localhost ip6-loopback\n`);
+  b.file('/proc/version', `Linux version ${d.kernel} (builder@${d.host}) (gcc 13.2.0) #1 SMP PREEMPT_DYNAMIC\n`, { m: 0o444 });
+  const readme = fs.read('/home/user/Desktop/はじめに.txt').replace(/Linux Mint 風/g, d.label).replace('Linux Mint (Cinnamon)', d.pretty).replace('(パネルの端末アイコン、または Ctrl+Alt+T)', d.termHint || '(Ctrl+Alt+T)').replace('  ・メニュー (左下) からアプリを起動できます。\n', d.menuHint || '');
+  b.file('/home/user/Desktop/はじめに.txt', readme, { o: 'user' });
+  if (d.family === 'arch') {
+    fs.rm('/etc/apt', { r: true }); fs.rm('/var/lib/dpkg', { r: true }); fs.rm('/home/user/Desktop', { r: true });
+    for (const x of ['Music', 'Pictures', 'Public', 'Templates', 'Videos', 'Downloads']) fs.rm('/home/user/' + x, { r: true });
+    b.dir('/var/lib/pacman'); b.file('/var/lib/pacman/installed', '');
+    b.file('/etc/pacman.conf', '[options]\nHoldPkg     = pacman glibc\nArchitecture = auto\nColor\nParallelDownloads = 5\n\n[core]\nInclude = /etc/pacman.d/mirrorlist\n\n[extra]\nInclude = /etc/pacman.d/mirrorlist\n');
+    b.file('/etc/pacman.d/mirrorlist', 'Server = https://geo.mirror.pkgbuild.com/$repo/os/$arch\n');
+    b.file('/etc/arch-release', '');
+    b.file('/home/user/.bashrc', "#\n# ~/.bashrc\n#\n\n# If not running interactively, don't do anything\n[[ $- != *i* ]] && return\n\nalias ls='ls --color=auto'\nalias grep='grep --color=auto'\nPS1='[\\u@\\h \\W]\\$ '\n", { o: 'user' });
+    b.file('/home/user/README.txt', `Arch Linux 風コンソールへようこそ。
+
+デスクトップ環境は入っていません。あるのはシェルだけです。
+
+    sudo pacman -Syu                    システムを更新
+    sudo pacman -S neofetch cmatrix sl  パッケージを入れる
+    pacman -Ss cow                      パッケージを探す
+    vim ~/.bashrc / vimtutor / man ls
+    poweroff                            電源を切って OS 選択画面へ
+
+sudo のパスワードは何でも通ります。
+ファイルはブラウザの localStorage に保存されます。
+`, { o: 'user' });
+  } else if (d.sources) b.file('/etc/apt/sources.list', d.sources);
+}
+
+// ---------------------------------------------------------------- Apple machines
+const MAC_README = (title, tips) => `${title} へようこそ！
+${'='.repeat(36)}
+
+これはブラウザの中で動く再現シミュレータです (非公式)。
+
+${tips}
+
+${README_COMMON}`;
+
+export function classicMacSeed(b) {
+  for (const d of ['/System Folder/Control Panels', '/System Folder/Extensions', '/System Folder/Preferences', '/System Folder/Apple Menu Items', '/System Folder/Fonts', '/Applications', '/Documents/Pictures', '/Desktop Folder', '/Trash', '/tmp', '/etc', '/dev', '/usr/bin', '/var/lib/dpkg']) b.dir(d);
+  b.file('/dev/null', '', { m: 0o666, dyn: 'null', dev: 1 });
+  for (const f of ['System', 'Finder', 'Clipboard', 'Scrapbook File', 'Note Pad File']) b.file('/System Folder/' + f, '\x7fELF resource fork');
+  for (const f of ['SimpleText', 'Calculator', 'Puzzle', 'Paint', 'Web Browser']) b.file('/Applications/' + f, '\x7fELF application');
+  for (const f of ['Monitors', 'Sound', 'Memory', 'General Controls', 'Date & Time']) b.file('/System Folder/Control Panels/' + f, '\x7fELF cdev');
+  b.file('/Documents/Read Me', MAC_README('クラシック Macintosh 風デスクトップ', '■ 使い方\n  ・画面右上のハードディスクをダブルクリックすると中身が開きます。\n  ・左上のメニュー (洋ナシのマーク) からアプリを起動できます。\n  ・ウィンドウ左上の四角がクローズ ボックス、右上がズーム ボックスです。\n  ・[特別] → [システム終了] で OS 選択画面に戻ります。\n  ・当時の Mac にコマンドラインはありませんが、おまけの「ターミナル」で Vim も使えます。'));
+  b.file('/Documents/Note', 'マウスひとつで何でもできる、というのが売りでした。\n');
+  b.file('/Documents/fruits.txt', 'banana\napple\ncherry\napple\ndate\n');
+  b.file('/Documents/index.html', HTML_SAMPLE);
+  b.file('/Documents/Pictures/Hills.svg', SVG_SAMPLE);
+}
+
+export function macSeed(b, era) {
+  const U = { o: 'user' }, H = '/Users/user', modern = era !== 'aqua';
+  for (const d of ['/Applications/Utilities', '/Library/Preferences', '/Library/Fonts', '/System/Library/CoreServices', '/System/Library/Fonts', '/Users/Shared', '/Volumes', '/private/etc', '/private/var/log', '/private/var/root', '/usr/bin', '/usr/sbin', '/usr/lib', '/usr/local/bin', '/usr/share', '/bin', '/sbin', '/dev', '/cores', '/opt']) b.dir(d);
+  b.dir('/private/tmp', { m: 0o1777 });
+  for (const l of ['etc', 'tmp', 'var']) { try { b.link('/' + l, 'private/' + l); } catch { /* /var exists as dir on the shared tree */ } }
+  b.file('/dev/null', '', { m: 0o666, dyn: 'null', dev: 1 }); b.file('/dev/zero', '', { m: 0o666, dyn: 'null', dev: 1 }); b.file('/dev/urandom', '', { m: 0o666, dyn: 'random', dev: 1 });
+  for (const a of ['Safari', 'Terminal', 'TextEdit', 'Calculator', 'Preview', modern ? 'System Settings' : 'System Preferences', 'Mail', 'Chess']) b.dir(`/Applications/${a}.app/Contents/MacOS`);
+  b.dir('/Applications/Utilities/Activity Monitor.app/Contents/MacOS');
+  b.file('/private/etc/hosts', '##\n# Host Database\n#\n# localhost is used to configure the loopback interface\n# when the system is booting.  Do not change this entry.\n##\n127.0.0.1\tlocalhost\n255.255.255.255\tbroadcasthost\n::1             localhost\n');
+  b.file('/private/etc/passwd', '##\n# User Database\n##\nnobody:*:-2:-2:Unprivileged User:/var/empty:/usr/bin/false\nroot:*:0:0:System Administrator:/var/root:/bin/sh\ndaemon:*:1:1:System Services:/var/root:/usr/bin/false\n');
+  b.file('/private/etc/shells', '# List of acceptable shells for chpass(1).\n/bin/bash\n/bin/csh\n/bin/sh\n/bin/tcsh\n/bin/zsh\n');
+  b.file('/private/etc/paths', '/usr/local/bin\n/usr/bin\n/bin\n/usr/sbin\n/sbin\n');
+  b.file('/private/var/log/system.log', 'Oct 11 13:35:01 Mac kernel[0]: Darwin Kernel starting\nOct 11 13:35:04 Mac loginwindow[92]: Login Window Started\n', { m: 0o640 });
+  b.file('/System/Library/CoreServices/SystemVersion.plist', '<?xml version="1.0" encoding="UTF-8"?>\n<plist version="1.0">\n<dict>\n\t<key>ProductName</key>\n\t<string>macOS</string>\n</dict>\n</plist>\n');
+  b.dir(H, { o: 'user', m: 0o755 });
+  for (const d of ['Desktop', 'Documents', 'Downloads', 'Movies', 'Music', 'Pictures', 'Public', 'Library/Preferences', '.Trash']) b.dir(`${H}/${d}`, U);
+  b.dir(H + '/Library', U);
+  const rc = era === 'bigsur' || era === 'tahoe' ? '.zshrc' : '.bash_profile';
+  b.file(`${H}/${rc}`, `# ~/${rc}\nexport PATH="$HOME/bin:/usr/local/bin:$PATH"\nalias ll='ls -alF'\nalias la='ls -A'\n`, U);
+  b.file(H + '/.vimrc', '" ~/.vimrc\n"set number\n"set hlsearch\n"set expandtab shiftwidth=4 tabstop=4\n"inoremap jj <Esc>\n', U);
+  const label = { aqua: 'Mac OS X (Aqua) 風', yosemite: 'OS X (フラット デザイン) 風', bigsur: 'macOS (Big Sur 世代) 風', tahoe: 'macOS (Liquid Glass) 風' }[era];
+  b.file(H + '/Desktop/はじめに.txt', MAC_README(`${label}デスクトップ`, `■ 使い方\n  ・画面下の Dock からアプリを起動できます。${modern ? '\n  ・Launchpad (Dock のグリッド) にすべてのアプリがあります。右上の虫めがねで検索もできます。' : ''}\n  ・左上のメニュー (洋ナシのマーク) → [システム終了] で OS 選択画面に戻ります。\n\n■ ターミナル (${era === 'bigsur' || era === 'tahoe' ? 'zsh' : 'bash'})\n    ls -la / cat / grep / sed / awk / find / man\n    vim ~/.vimrc / vimtutor / nano / less / top\n    sw_vers / uname -a / open . / open -a TextEdit memo.txt\n    echo hello | pbcopy ; pbpaste / say hello\n  sudo のパスワードは何でも通ります。`), U);
+  b.file(H + '/Documents/memo.txt', 'ドキュメント フォルダのメモです。\n', U);
+  b.file(H + '/Documents/hello.sh', '#!/bin/bash\nname=${1:-World}\necho "Hello, $name!"\nfor i in 1 2 3; do\n    echo "  $i 回目のループ"\ndone\n', { o: 'user', m: 0o755 });
+  b.file(H + '/Documents/fruits.txt', 'banana\napple\ncherry\napple\ndate\nbanana\napple\n', U);
+  b.file(H + '/Documents/index.html', HTML_SAMPLE, U);
+  b.file(H + '/Pictures/landscape.svg', SVG_SAMPLE, U); b.file(H + '/Pictures/terminal.svg', SVG_LOGO, U);
+}
+
+export function apple2Seed(b) {
+  b.file('/HELLO', '10 HOME\n20 PRINT "HELLO FROM THE 8-BIT DAYS!"\n30 PRINT\n40 PRINT "TYPE  CATALOG  TO SEE THE DISK."\n50 PRINT "TYPE  LOAD GUESS  THEN  RUN."\n60 PRINT "TYPE  HELP  FOR MORE."\n');
+  b.file('/GUESS', '10 REM NUMBER GUESSING GAME\n20 N = INT(RND(1) * 100) + 1 : T = 0\n30 PRINT "I AM THINKING OF A NUMBER FROM 1 TO 100."\n40 INPUT "YOUR GUESS? "; G\n50 T = T + 1\n60 IF G < N THEN PRINT "TOO LOW." : GOTO 40\n70 IF G > N THEN PRINT "TOO HIGH." : GOTO 40\n80 PRINT "YOU GOT IT IN "; T; " TRIES!"\n');
+  b.file('/STARS', '10 FOR I = 1 TO 10\n20 PRINT TAB(11 - I);\n30 FOR J = 1 TO I * 2 - 1 : PRINT "*"; : NEXT J\n40 PRINT\n50 NEXT I\n');
+  b.file('/FIZZBUZZ', '10 FOR I = 1 TO 30\n20 A$ = ""\n30 IF I - INT(I / 3) * 3 = 0 THEN A$ = "FIZZ"\n40 IF I - INT(I / 5) * 5 = 0 THEN A$ = A$ + "BUZZ"\n50 IF A$ = "" THEN A$ = STR$(I)\n60 PRINT A$; " ";\n70 NEXT I\n80 PRINT\n');
+  b.file('/README', 'BASIC のプログラムは行番号つきで入力します。\n\n  10 PRINT "HELLO"\n  20 GOTO 10\n  RUN            (Ctrl+C で止まります)\n  LIST / NEW / SAVE 名前 / LOAD 名前 / CATALOG / DELETE 名前\n');
+}

@@ -72,11 +72,14 @@ def('hostname', ctx => {
 }, { usage: 'hostname [-iI] [name]', desc: 'Show or set the system host name.' });
 def('uname', ctx => {
   const f = ctx.args.join('').replace(/-/g, ''), i = info(ctx);
-  const parts = { s: 'Linux', n: ctx.sh.host, r: i.kernel, v: '#101-Ubuntu SMP Tue Nov 14 13:30:08 UTC 2023', m: 'x86_64', p: 'x86_64', i: 'x86_64', o: 'GNU/Linux' };
-  const want = !f ? 's' : f.includes('a') || ctx.args.includes('--all') ? 'snrvmpio' : f;
-  ctx.out([...'snrvmpio'].filter(k => want.includes(k)).map(k => parts[k]).join(' ') + '\n');
+  const mac = i.family === 'mac', arch = i.arch || 'x86_64';
+  const parts = mac ? { s: 'Darwin', n: ctx.sh.host, r: i.kernel, v: i.kernelVer || `Darwin Kernel Version ${i.kernel}`, m: arch, p: arch === 'arm64' ? 'arm' : arch === 'Power Macintosh' ? 'powerpc' : 'i386' }
+    : { s: 'Linux', n: ctx.sh.host, r: i.kernel, v: i.kernelVer || '#101-Ubuntu SMP Tue Nov 14 13:30:08 UTC 2023', m: 'x86_64', p: 'x86_64', i: 'x86_64', o: 'GNU/Linux' };
+  const order = mac ? 'snrvmp' : 'snrvmpio';
+  const want = !f ? 's' : f.includes('a') || ctx.args.includes('--all') ? (mac ? 'snrvm' : order) : f;
+  ctx.out([...order].filter(k => want.includes(k)).map(k => parts[k]).join(' ') + '\n');
 }, { usage: 'uname [OPTION]...', desc: 'Print certain system information.\n  -a all  -s kernel name  -n node name  -r kernel release  -m machine' });
-def('arch', ctx => ctx.out('x86_64\n'), { usage: 'arch', desc: 'Print machine hardware name.' });
+def('arch', ctx => ctx.out((info(ctx).family === 'mac' ? (info(ctx).arch === 'arm64' ? 'arm64' : info(ctx).arch === 'Power Macintosh' ? 'ppc' : 'i386') : 'x86_64') + '\n'), { usage: 'arch', desc: 'Print machine hardware name.' });
 def('nproc', ctx => ctx.out(ncpu() + '\n'), { usage: 'nproc', desc: 'Print the number of processing units available.' });
 def('tty', ctx => ctx.out('/dev/pts/0\n'), { usage: 'tty', desc: 'Print the file name of the terminal connected to standard input.' });
 def('uptime', ctx => {
@@ -160,7 +163,7 @@ const BASE_PROCS = [
   [1588, 'user', 'cinnamon --replace', 2.1, 3.8], [1640, 'user', 'nemo-desktop', 0.1, 0.9], [1702, 'user', '/usr/libexec/gvfsd', 0, 0.1],
 ];
 export function procList(ctx) {
-  const base = BASE_PROCS.map(([pid, user, cmd, cpu, m]) => ({ pid, user, cmd, cpu, mem: m, tty: '?' }));
+  const base = (ctx.os.info?.procs || BASE_PROCS).map(([pid, user, cmd, cpu, m]) => ({ pid, user, cmd, cpu, mem: m, tty: '?' }));
   const apps = ctx.os.procs ? ctx.os.procs() : [];
   return [...base, ...apps.map(p => ({ tty: '?', cpu: 0.3, mem: 1.2, ...p })), { pid: ctx.sh.pid, user: ctx.sh.users[0]?.user || ctx.user, cmd: 'bash', cpu: 0, mem: 0.1, tty: 'pts/0' }];
 }
@@ -207,7 +210,7 @@ def('lsusb', ctx => ctx.out('Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3
 def('lspci', ctx => ctx.out('00:00.0 Host bridge: Browser Virtual Host Bridge\n00:02.0 VGA compatible controller: WebGL Virtual Graphics Adapter\n00:14.0 USB controller: Virtual xHCI Host Controller\n00:17.0 SATA controller: Virtual AHCI Controller\n00:1f.3 Audio device: Web Audio Virtual Sound Card\n02:00.0 Ethernet controller: Fetch API Gigabit Network Connection\n'), { usage: 'lspci', desc: 'List all PCI devices.' });
 def('lsb_release', ctx => {
   const i = info(ctx), f = ctx.args.join('');
-  const rows = [['i', 'Distributor ID', 'Linuxmint'], ['d', 'Description', `${i.name} ${i.version}`], ['r', 'Release', i.version], ['c', 'Codename', i.codename.toLowerCase()]];
+  const rows = [['i', 'Distributor ID', i.id || 'Linuxmint'], ['d', 'Description', `${i.name} ${i.version}`], ['r', 'Release', i.version], ['c', 'Codename', i.codename.toLowerCase()]];
   if (!f) return void ctx.out('No LSB modules are available.\n');
   if (f.includes('a')) ctx.out('No LSB modules are available.\n');
   for (const [k, label, v] of rows) if (f.includes('a') || f.includes(k)) ctx.out(f.includes('s') ? v + '\n' : `${label}:\t${v}\n`);
@@ -414,7 +417,8 @@ def('apt apt-get apt-cache', async ctx => {
   switch (verb) {
     case 'update': {
       if (lock()) return 100;
-      const repos = [`http://packages.linuxmint.com virginia InRelease`, `http://archive.ubuntu.com/ubuntu jammy InRelease`, `http://archive.ubuntu.com/ubuntu jammy-updates InRelease`, `http://archive.ubuntu.com/ubuntu jammy-backports InRelease`, `http://security.ubuntu.com/ubuntu jammy-security InRelease`];
+      const B = info(ctx).base || 'jammy';
+      const repos = [info(ctx).id ? `http://archive.ubuntu.com/ubuntu ${B}-proposed InRelease` : `http://packages.linuxmint.com virginia InRelease`, `http://archive.ubuntu.com/ubuntu ${B} InRelease`, `http://archive.ubuntu.com/ubuntu ${B}-updates InRelease`, `http://archive.ubuntu.com/ubuntu ${B}-backports InRelease`, `http://security.ubuntu.com/ubuntu ${B}-security InRelease`];
       for (let i = 0; i < repos.length; i++) { await ctx.sleep(120 + Math.random() * 260); ctx.out(`${i === 0 ? 'Ign' : 'Hit'}:${i + 1} ${repos[i]}\n`); }
       await reading();
       ctx.out('All packages are up to date.\n');
@@ -435,7 +439,7 @@ def('apt apt-get apt-cache', async ctx => {
       if (!todo.length) { ctx.out('0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.\n'); return 0; }
       const dl = todo.reduce((s, n) => s + PKGS[n][1], 0), disk = todo.reduce((s, n) => s + PKGS[n][2], 0);
       ctx.out(`The following NEW packages will be installed:\n  ${todo.join(' ')}\n0 upgraded, ${todo.length} newly installed, 0 to remove and 0 not upgraded.\nNeed to get ${dl.toFixed(1)} kB of archives.\nAfter this operation, ${disk >= 1000 ? (disk / 1000).toFixed(2) + ' MB' : disk.toFixed(1) + ' kB'} of additional disk space will be used.\n`);
-      for (let i = 0; i < todo.length; i++) { await ctx.sleep(250 + Math.random() * 300); ctx.out(`Get:${i + 1} http://archive.ubuntu.com/ubuntu jammy/universe amd64 ${todo[i]} amd64 ${PKGS[todo[i]][0]} [${PKGS[todo[i]][1]} kB]\n`); }
+      for (let i = 0; i < todo.length; i++) { await ctx.sleep(250 + Math.random() * 300); ctx.out(`Get:${i + 1} http://archive.ubuntu.com/ubuntu ${info(ctx).base || 'jammy'}/universe amd64 ${todo[i]} amd64 ${PKGS[todo[i]][0]} [${PKGS[todo[i]][1]} kB]\n`); }
       ctx.out(`Fetched ${dl.toFixed(1)} kB in 0s (${(dl * 2.7).toFixed(0)} kB/s)\n`);
       for (const n of todo) {
         const v = PKGS[n][0];
@@ -536,18 +540,17 @@ def('watch', async ctx => {
 // ---------------------------------------------------------------- toys
 const LEAF = ['        ▄▄▄▄▄▄▄▄▄▄▄▄▄▄        ', '     ▄██████████████████▄     ', '   ▄█████▀▀        ▀▀█████▄   ', '  █████▀   ▄██████▄   ▀█████  ', ' █████    ████▀▀████    █████ ', ' █████    ████  ████    █████ ', ' █████    ████  ████    █████ ', ' █████    ████  ████    █████ ', '  █████▄   ▀▀    ▀▀   ▄█████  ', '   ▀█████▄▄        ▄▄█████▀   ', '     ▀██████████████████▀     ', '        ▀▀▀▀▀▀▀▀▀▀▀▀▀▀        '];
 def('neofetch screenfetch', ctx => {
-  const i = info(ctx), m = mem(), g = '\x1b[1;32m', r = '\x1b[0m';
+  const i = info(ctx), m = mem(), g = `\x1b[${i.color || '1;32'}m`, r = '\x1b[0m', ART = i.art || LEAF, AW = Math.max(...ART.map(x => [...x].length));
   let gpu = 'Virtual WebGL Adapter', res = '1920x1080';
   try { res = `${screen.width}x${screen.height}`; const c = document.createElement('canvas').getContext('webgl'); const e = c.getExtension('WEBGL_debug_renderer_info'); if (e) gpu = c.getParameter(e.UNMASKED_RENDERER_WEBGL).replace(/^ANGLE \(|\)$/g, '').slice(0, 44); } catch { /* headless */ }
   const title = `${g}${ctx.user}${r}@${g}${ctx.sh.host}${r}`;
   const rows = [title, '-'.repeat(ctx.user.length + ctx.sh.host.length + 1),
-    ['OS', `${i.name} ${i.version} x86_64`], ['Host', 'Browser Virtual Machine 1.0'], ['Kernel', i.kernel], ['Uptime', upStr(Date.now() - boot(ctx)).replace(/^(\d+) min$/, '$1 mins')],
-    ['Packages', `${2187 + ctx.sh.pkgs().size} (dpkg)`], ['Shell', 'bash 5.1.16'], ['Resolution', res], ['DE', i.de], ['WM', 'Mutter (Muffin)'], ['WM Theme', 'Mint-Y-Dark-Aqua (Mint-Y)'],
-    ['Theme', 'Mint-Y-Dark-Aqua [GTK2/3]'], ['Icons', 'Mint-Y-Sand [GTK2/3]'], ['Terminal', 'gnome-terminal'], ['CPU', `JavaScript Virtual CPU (${ncpu()}) @ 3.000GHz`], ['GPU', gpu],
+    ['OS', [i.name, i.version, 'x86_64'].filter(Boolean).join(' ')], ['Host', 'Browser Virtual Machine 1.0'], ['Kernel', i.kernel], ['Uptime', upStr(Date.now() - boot(ctx)).replace(/^(\d+) min$/, '$1 mins')],
+    ['Packages', `${(i.pkgBase || 2187) + ctx.sh.pkgs().size} (${i.family === 'arch' ? 'pacman' : 'dpkg'})`], ['Shell', 'bash 5.1.16'], ['Resolution', res], ...(i.de ? [['DE', i.de], ['WM', i.wm || 'Mutter (Muffin)'], ['Theme', i.gtk || 'Mint-Y-Dark-Aqua [GTK2/3]'], ['Icons', i.icons || 'Mint-Y-Sand [GTK2/3]']] : []), ['Terminal', i.terminal || 'gnome-terminal'], ['CPU', `JavaScript Virtual CPU (${ncpu()}) @ 3.000GHz`], ['GPU', gpu],
     ['Memory', `${Math.round(m.used / 1024)}MiB / ${Math.round(m.total / 1024)}MiB`], '',
     [0, 1, 2, 3, 4, 5, 6, 7].map(c => `\x1b[4${c}m   `).join('') + r, [0, 1, 2, 3, 4, 5, 6, 7].map(c => `\x1b[10${c}m   `).join('') + r,
   ].map(x => (Array.isArray(x) ? `${g}${x[0]}${r}: ${x[1]}` : x));
-  for (let k = 0; k < Math.max(LEAF.length, rows.length); k++) ctx.out(`${g}${LEAF[k] || ' '.repeat(30)}${r}  ${rows[k] ?? ''}\n`);
+  for (let k = 0; k < Math.max(ART.length, rows.length); k++) ctx.out(`${g}${(ART[k] || '').padEnd(AW)}${r}  ${rows[k] ?? ''}\n`);
 }, { usage: 'neofetch', desc: 'A fast, highly customizable system info script.', pkg: 'neofetch' });
 def('inxi', ctx => { const i = info(ctx), m = mem(); ctx.out(`\x1b[1;34mCPU:\x1b[0m ${ncpu()}-core JavaScript Virtual (-MT MCP-) \x1b[1;34mspeed:\x1b[0m 3000 MHz \x1b[1;34mKernel:\x1b[0m ${i.kernel} x86_64 \x1b[1;34mUp:\x1b[0m ${upStr(Date.now() - boot(ctx))}\n\x1b[1;34mMem:\x1b[0m ${(m.used / 1024).toFixed(1)}/${(m.total / 1024).toFixed(1)} MiB \x1b[1;34mStorage:\x1b[0m 50 GiB (18.4% used) \x1b[1;34mProcs:\x1b[0m ${procList(ctx).length + 180} \x1b[1;34mShell:\x1b[0m Bash \x1b[1;34minxi:\x1b[0m 3.3.13\n`); }, { usage: 'inxi [options]', desc: 'Command line system information script.' });
 
@@ -666,4 +669,76 @@ def('python3 python', async ctx => {
   ctx.out(`Python 3.10.12 (main, Nov 20 2023, 15:14:05) [GCC 11.4.0] on linux\nType "help", "copyright", "credits" or "license" for more information.\n(browser sandbox: a tiny subset — print(), variables, arithmetic, strings)\n`);
   for (;;) { const l = await ctx.readLine({ prompt: '>>> ' }); if (l === null) { ctx.out('\n'); break; } if (run(l, true) === true) break; }
 }, { usage: 'python3 [-c cmd | file]', desc: 'A tiny Python subset: print(), variables, arithmetic and strings.', ownHelp: true });
+
+// ---------------------------------------------------------------- distro / platform specifics
+for (const n of ['apt', 'apt-get', 'apt-cache', 'dpkg']) commands[n].only = ['debian'];
+for (const n of ['systemctl', 'service', 'lsb_release', 'hostnamectl', 'free', 'ip', 'lsblk', 'lscpu', 'lsusb', 'lspci', 'dmesg', 'inxi', 'firefox', 'x-www-browser', 'sensible-browser', 'nemo', 'nautilus', 'thunar', 'xed', 'gedit', 'pluma', 'gnome-terminal', 'x-terminal-emulator', 'gnome-calculator', 'xviewer', 'eog', 'gnome-system-monitor', 'cinnamon-settings', 'xdg-open', 'notify-send', 'reboot', 'poweroff', 'halt', 'neofetch', 'screenfetch', 'sl', 'cowsay', 'cowthink', 'cmatrix', 'figlet', 'toilet', 'lolcat', 'fortune', 'htop', 'tree', 'pidof', 'nproc', 'tac', 'shuf', 'factor', 'md5sum', 'sha1sum', 'sha256sum', 'sha512sum', 'hd']) if (commands[n]) commands[n].not = ['mac'];
+for (const [names, app] of [['dolphin', 'files'], ['kate kwrite', 'editor'], ['konsole', 'terminal'], ['kcalc', 'calc'], ['gwenview', 'viewer'], ['systemsettings', 'settings']])
+  def(names, ctx => { if (!ctx.os.launch) { ctx.err(`${ctx.name}: cannot connect to X server\n`); return 1; } const f = ctx.args.find(a => !a.startsWith('-')); ctx.os.launch(app, f ? { path: ctx.path(f) } : app === 'terminal' || app === 'files' ? { cwd: ctx.cwd, path: ctx.cwd } : {}); }, { usage: names.split(' ')[0] + ' [FILE]', desc: 'KDE application launcher.', not: ['mac'] });
+
+def('pacman yay', async ctx => {
+  const a = ctx.args, op = a.find(x => /^-[A-Z]/.test(x)) || '', names = a.filter(x => !x.startsWith('-')), sh = ctx.sh, file = sh.flavor.pkgFile;
+  const installed = sh.pkgs(), root = () => { if (ctx.user === 'root') return true; ctx.err('error: you cannot perform this operation unless you are root.\n'); return false; };
+  if (!op) { ctx.err('error: no operation specified (use -h for help)\n'); return 1; }
+  if (op.startsWith('-V')) { ctx.out("\n .--.                  Pacman v6.1.0 - libalpm v14.0.0\n/ _.-' .-.  .-.  .-.   Copyright (C) 2006-2024 Pacman Development Team\n\\  '-. '-'  '-'  '-'   Copyright (C) 2002-2006 Judd Vinet\n '--'\n                       This program may be freely redistributed under\n                       the terms of the GNU General Public License.\n\n"); return 0; }
+  if (op.startsWith('-Q')) { const all = { bash: '5.2.032-2', coreutils: '9.5-2', vim: '9.1.0707-1', nano: '8.1-1', pacman: '6.1.0-3', linux: '6.10.6.arch1-1', grep: '3.11-1', sed: '4.9-3', gawk: '5.3.0-1', less: '1:661-1', curl: '8.9.1-2', ...Object.fromEntries([...installed].map(n => [n, (PKGS[n] || ['1.0-1'])[0].replace(/^\d+:/, '')])) }; let st = 0; for (const n of names.length ? names : Object.keys(all).sort()) { if (all[n]) ctx.out(`${n} ${all[n]}\n`); else { ctx.err(`error: package '${n}' was not found\n`); st = 1; } } return st; }
+  if (op.startsWith('-Ss')) { const q = (names[0] || '').toLowerCase(); for (const [n, p] of Object.entries(PKGS)) if (n.includes(q) || p[3].toLowerCase().includes(q)) ctx.out(`\x1b[1;35mextra/\x1b[0m\x1b[1m${n.replace('fortune-mod', 'fortune-mod')} \x1b[1;32m${p[0].replace(/^\d+:/, '')}\x1b[0m${installed.has(n) ? ' \x1b[1;36m[installed]\x1b[0m' : ''}\n    ${p[3]}\n`); return 0; }
+  if (op.startsWith('-S')) {
+    if (!root()) return 1;
+    if (op.includes('y')) { ctx.out(':: Synchronizing package databases...\n'); for (const db of ['core', 'extra', 'multilib']) { await ctx.sleep(260); ctx.out(` ${db.padEnd(22)} ${String(120 + Math.floor(Math.random() * 8000) / 10).padStart(7)} KiB  ${(1 + Math.random() * 9).toFixed(2)} MiB/s 00:00 [######################] 100%\n`); } }
+    if (op.includes('u')) { ctx.out(':: Starting full system upgrade...\n'); await ctx.sleep(300); if (!names.length) { ctx.out(' there is nothing to do\n'); return 0; } }
+    if (!names.length) return op.includes('y') ? 0 : (ctx.err('error: no targets specified (use -h for help)\n'), 1);
+    const todo = [];
+    for (let n of names) { if (n === 'fortune') n = 'fortune-mod'; if (!PKGS[n]) { ctx.err(`error: target not found: ${n}\n`); return 1; } if (installed.has(n)) ctx.out(`warning: ${n}-${PKGS[n][0]} is up to date -- reinstalling\n`); todo.push(n); }
+    ctx.out('resolving dependencies...\nlooking for conflicting packages...\n\n');
+    ctx.out(`Packages (${todo.length}) ${todo.map(n => `${n}-${PKGS[n][0].replace(/^\d+:/, '')}`).join('  ')}\n\nTotal Download Size:   ${(todo.reduce((s, n) => s + PKGS[n][1], 0) / 1024).toFixed(2)} MiB\nTotal Installed Size:  ${(todo.reduce((s, n) => s + PKGS[n][2], 0) / 1024).toFixed(2)} MiB\n\n`);
+    if (!a.includes('--noconfirm')) { const ans = await ctx.readLine({ prompt: ':: Proceed with installation? [Y/n] ' }); if (/^n/i.test(ans || '')) return 1; }
+    ctx.out(':: Retrieving packages...\n');
+    for (const n of todo) { await ctx.sleep(300); ctx.out(` ${(n + '-' + PKGS[n][0].replace(/^\d+:/, '')).slice(0, 26).padEnd(26)} ${String(PKGS[n][1]).padStart(6)} KiB  ${(1 + Math.random() * 6).toFixed(2)} MiB/s 00:00 [######################] 100%\n`); }
+    for (const [k, label] of [['keys', 'checking keys in keyring'], ['int', 'checking package integrity'], ['load', 'loading package files'], ['conf', 'checking for file conflicts']]) { void k; await ctx.sleep(120); ctx.out(`(${todo.length}/${todo.length}) ${label.padEnd(38)} [######################] 100%\n`); }
+    ctx.out(':: Processing package changes...\n');
+    let k = 0;
+    for (const n of todo) {
+      await ctx.sleep(250); ctx.out(`(${++k}/${todo.length}) installing ${n.padEnd(30)} [######################] 100%\n`);
+      if (!installed.has(n)) ctx.fs.write(file, `Package: ${n}\nVersion: ${PKGS[n][0]}\n\n`, { append: true });
+      for (const [name, c] of Object.entries(commands)) if (c.pkg === n && /^[\w.+-]+$/.test(name)) { try { ctx.fs.write('/usr/bin/' + name, '\x7fELF', { mode: 0o755 }); } catch { /* read-only */ } }
+    }
+    ctx.out(':: Running post-transaction hooks...\n(1/1) Arming ConditionNeedsUpdate...\n');
+    return 0;
+  }
+  if (op.startsWith('-R')) {
+    if (!root()) return 1;
+    let s = ctx.fs.read(file);
+    for (const n of names) { if (!installed.has(n)) { ctx.err(`error: target not found: ${n}\n`); return 1; } ctx.out(`(1/1) removing ${n.padEnd(32)} [######################] 100%\n`); s = s.replace(new RegExp(`Package: ${n.replace(/[+.]/g, '\\$&')}\\n(?:.+\\n)*\\n`), ''); for (const [name, c] of Object.entries(commands)) if (c.pkg === n) { try { ctx.fs.unlink('/usr/bin/' + name); } catch { /* gone */ } } await ctx.sleep(200); }
+    ctx.fs.write(file, s);
+    return 0;
+  }
+  ctx.err(`error: invalid option '${op}'\n`); return 1;
+}, { usage: 'pacman <operation> [...]', desc: 'Package manager utility.\n  -S pkg  install   -Syu  full upgrade   -Ss term  search   -Q  list installed   -R pkg  remove', only: ['arch'], ownHelp: true });
+
+// macOS
+const MAC = { only: ['mac'] };
+def('sw_vers', ctx => { const i = info(ctx), f = ctx.args[0]; if (f === '-productVersion') return void ctx.out(i.version + '\n'); if (f === '-buildVersion') return void ctx.out(i.build + '\n'); if (f === '-productName') return void ctx.out(i.product + '\n'); ctx.out(`ProductName:\t${i.product}\nProductVersion:\t${i.version}\nBuildVersion:\t${i.build}\n`); }, { usage: 'sw_vers [-productName | -productVersion | -buildVersion]', desc: 'Print macOS version information.', ...MAC });
+def('open', ctx => {
+  const a = ctx.args, ai = a.indexOf('-a'), t = a.filter((x, k) => !x.startsWith('-') && k !== ai + 1 || ai < 0 && !x.startsWith('-'))[0];
+  if (!ctx.os.launch) { ctx.err('open: no window server\n'); return 1; }
+  if (ai >= 0) { const app = { terminal: 'terminal', textedit: 'editor', safari: 'browser', finder: 'files', calculator: 'calc', preview: 'viewer', 'system preferences': 'settings', 'system settings': 'settings', 'activity monitor': 'taskmgr' }[(a[ai + 1] || '').toLowerCase().replace(/\.app$/, '')]; if (!app) { ctx.err(`Unable to find application named '${a[ai + 1]}'\n`); return 1; } ctx.os.launch(app, t ? { path: ctx.path(t) } : {}); return 0; }
+  if (!t) { ctx.err('Usage: open [-a <application>] [filenames]\n'); return 1; }
+  if (/^(https?:\/\/|www\.)/.test(t)) return void ctx.os.launch('browser', { url: t });
+  const p = ctx.path(t);
+  if (!ctx.fs.exists(p)) { ctx.err(`The file ${p} does not exist.\n`); return 1; }
+  if (/\.app\/?$/.test(p)) { const app = { Terminal: 'terminal', TextEdit: 'editor', Safari: 'browser', Calculator: 'calc', Preview: 'viewer' }[basename(p.replace(/\/$/, '')).replace(/\.app$/, '')]; if (app) return void ctx.os.launch(app); }
+  ctx.os.openPath(p);
+}, { usage: 'open [-a application] file ...', desc: 'Open files, directories and URLs with the default application.', ...MAC });
+let pasteboard = '';
+def('pbcopy', async ctx => { pasteboard = await ctx.readAll(); try { await navigator.clipboard.writeText(pasteboard); } catch { /* clipboard permission denied: keep the in-memory copy */ } }, { usage: 'pbcopy', desc: 'Copy standard input to the pasteboard.', ...MAC });
+def('pbpaste', async ctx => { let t = pasteboard; try { t = await navigator.clipboard.readText(); } catch { /* fall back to the in-memory copy */ } ctx.out(t); }, { usage: 'pbpaste', desc: 'Write the pasteboard to standard output.', ...MAC });
+def('say', async ctx => { const t = ctx.args.filter(a => !a.startsWith('-')).join(' ') || (ctx.hasStdin ? ctx.stdin : ''); if (!t) return; if (typeof speechSynthesis === 'undefined') { ctx.err('say: speech synthesis is not available in this browser\n'); return 1; } await new Promise(res => { const u = new SpeechSynthesisUtterance(t); u.onend = u.onerror = res; speechSynthesis.speak(u); setTimeout(res, 15000); }); }, { usage: 'say [text]', desc: "Convert text to audible speech (uses the browser's speech synthesis).", ...MAC });
+def('system_profiler', ctx => { const i = info(ctx); ctx.out(`Hardware:\n\n    Hardware Overview:\n\n      Model Name: ${i.model || 'Browser Mac'}\n      Chip: ${i.chip || 'JavaScript Virtual CPU'}\n      Total Number of Cores: ${ncpu()}\n      Memory: ${Math.round(mem().total / 1048576)} GB\n\nSoftware:\n\n    System Software Overview:\n\n      System Version: ${i.product} ${i.version} (${i.build})\n      Kernel Version: Darwin ${i.kernel}\n      Boot Volume: Macintosh HD\n      Computer Name: ${ctx.sh.host}\n      User Name: ${ctx.user}\n`); }, { usage: 'system_profiler [dataType]', desc: 'Report system hardware and software configuration.', ...MAC });
+def('defaults', ctx => { if (ctx.args[0] === 'read' && ctx.args.length > 1) { ctx.err(`\nThe domain/default pair of (${ctx.args.slice(1).join(', ')}) does not exist\n`); return 1; } ctx.out('Command line interface to a user\'s defaults.\nSyntax:\n\n\'defaults\' [-currentHost | -host <hostname>] followed by one of the following:\n\n  read                                 shows all defaults\n  read <domain> <key>                  shows defaults for given domain, key\n  write <domain> <key> <value>         writes key for domain\n'); }, { usage: 'defaults [read|write] domain key', desc: 'Access the user defaults system (read-only stub).', ...MAC });
+def('diskutil', ctx => { if (ctx.args[0] !== 'list') { ctx.out('Disk Utility Tool\nUsage:  diskutil list\n'); return 0; } ctx.out('/dev/disk0 (internal, physical):\n   #:                       TYPE NAME                    SIZE       IDENTIFIER\n   0:      GUID_partition_scheme                        *500.3 GB   disk0\n   1:                        EFI EFI                     209.7 MB   disk0s1\n   2:                  Apple_HFS Macintosh HD            499.9 GB   disk0s2\n'); }, { usage: 'diskutil list', desc: 'Modify, verify and repair local disks.', ...MAC });
+def('softwareupdate', async ctx => { ctx.out('Software Update Tool\n\nFinding available software\n'); await ctx.sleep(1200); ctx.out('No new software available.\n'); }, { usage: 'softwareupdate -l', desc: 'System software update tool.', ...MAC });
+def('caffeinate', async ctx => { await ctx.sleep(1e9); }, { usage: 'caffeinate', desc: 'Prevent the system from sleeping (until Ctrl+C).', ...MAC });
+def('osascript', ctx => { const i = ctx.args.indexOf('-e'), m = i >= 0 && /display (?:dialog|notification) "([^"]*)"/.exec(ctx.args[i + 1] || ''); if (m && ctx.os.notify) { ctx.os.notify('スクリプト', m[1]); return 0; } ctx.err('osascript: only `display dialog "text"` and `display notification "text"` are supported here\n'); return 1; }, { usage: "osascript -e 'display notification \"text\"'", desc: 'Execute AppleScript (tiny subset).', ...MAC });
+for (const n of ['shutdown']) if (commands[n]) commands[n].sbin = true;
 export { INFO, upStr, mem, ncpu, PKGS, resolve };

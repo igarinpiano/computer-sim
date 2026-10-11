@@ -17,7 +17,7 @@ export function uniqueName(fs, dir, name) {
 export function properties(os, path) {
   const fs = os.fs, n = fs.lstat(path);
   if (!n) return;
-  const xp = os.id !== 'mint';
+  const xp = os.kind === 'win';
   let count = 0;
   if (n.t === 'd') fs.walk(path, () => count++);
   const rows = [
@@ -42,7 +42,7 @@ function typeName(os, name) {
 }
 
 export function files(os, args = {}) {
-  const fs = os.fs, xp = os.id !== 'mint';
+  const fs = os.fs, xp = os.kind === 'win';
   let cwd = args.path && (args.path === COMPUTER || fs.isDir(args.path)) ? args.path : os.home;
   const hist = [cwd];
   let hi = 0, view = os.store.get('files.view', 'icons'), hidden = false, sel = new Set(), anchor = null, entries = [];
@@ -60,7 +60,7 @@ export function files(os, args = {}) {
   const win = os.wm.open({ title: '', icon: 'folder', app: 'files', width: 720, height: 460, minW: 360, content });
   win.proc = { cmd: xp ? 'explorer.exe' : 'nemo', exe: 'explorer.exe' };
 
-  const labelOf = p => (p === COMPUTER ? os.L.computer : p === os.trashDir ? os.L.trash : p === '/' ? (xp ? 'ローカル ディスク (C:)' : 'ファイルシステム') : os.displayName(basename(p)));
+  const labelOf = p => (p === COMPUTER ? os.L.computer : p === os.trashDir ? os.L.trash : p === '/' ? os.L.rootName : os.displayName(basename(p)));
   const go = (p, push = true) => {
     if (p !== COMPUTER && !fs.isDir(p)) { msgBox(os, { title: os.L.files, text: `'${os.pathLabel(p)}' が見つかりません。綴りを確認して、再実行してください。`, icon: 'error' }); return; }
     if (p !== COMPUTER) { try { fs.readdir(p); } catch (e) { msgBox(os, { title: os.L.files, text: `${os.pathLabel(p)} にアクセスできません。\n\n${errMsg(e) === 'Permission denied' ? 'アクセスが拒否されました。' : errMsg(e)}`, icon: 'error' }); return; } p = fs.realpath(p); }
@@ -75,9 +75,9 @@ export function files(os, args = {}) {
   const setView = v => { view = v; os.store.set('files.view', v); render(); };
 
   function readEntries() {
-    if (cwd === COMPUTER) return [{ name: xp ? 'ローカル ディスク (C:)' : 'ファイルシステム', icon: 'drive', path: '/', dir: true, virt: true, type: xp ? 'ローカル ディスク' : 'ボリューム' }, { name: os.L.docs, icon: 'folder', path: os.docs, dir: true, virt: true, type: 'フォルダ' }, { name: os.L.trash, icon: 'trash', path: os.trashDir, dir: true, virt: true, type: 'システム フォルダ' }];
+    if (cwd === COMPUTER) return [{ name: os.L.rootName, icon: 'drive', path: '/', dir: true, virt: true, type: xp ? 'ローカル ディスク' : 'ボリューム' }, { name: os.L.docs, icon: 'folder', path: os.docs, dir: true, virt: true, type: 'フォルダ' }, { name: os.L.trash, icon: 'trash', path: os.trashDir, dir: true, virt: true, type: 'システム フォルダ' }];
     const node = fs.stat(cwd);
-    return fs.readdir(cwd).filter(n => hidden || !n.startsWith('.')).map(n => {
+    return fs.readdir(cwd).filter(n => hidden || !(n.startsWith('.') || (cwd === '/' && os.hideRoot?.includes(n)))).map(n => {
       const e = node.c[n], real = e.t === 'l' ? fs.stat(join(cwd, n)) || e : e;
       return { name: n, node: e, dir: real.t === 'd', path: join(cwd, n), icon: iconFor(n, real), size: real.t === 'f' ? fs.size(real) : null, mt: e.mt, type: real.t === 'd' ? (xp ? 'ファイル フォルダ' : 'フォルダー') : typeName(os, n) };
     }).sort((a, b) => b.dir - a.dir || a.name.localeCompare(b.name, 'ja', { numeric: true, sensitivity: 'base' }));
@@ -218,7 +218,7 @@ export function files(os, args = {}) {
         { label: '開く(O)', onClick: () => open(e) },
         text && { label: os.L.editor + ' で編集', icon: 'editor', onClick: () => os.launch('editor', { path: e.path }) },
         text && { label: 'Vim で開く', icon: 'terminal', onClick: () => os.launch('terminal', { cwd, run: `vim "${e.name}"` }) },
-        e.dir && { label: xp ? 'コマンド プロンプトをここで開く' : '端末で開く', icon: 'terminal', onClick: () => os.launch('terminal', { cwd: e.path }) },
+        e.dir && { label: os.L.openTerm, icon: 'terminal', onClick: () => os.launch('terminal', { cwd: e.path }) },
         !e.virt && '-',
         inTrash() && { label: '元に戻す', onClick: () => { os.restoreTrash(selected().map(s => basename(s.path))); render(); } },
         !e.virt && !inTrash() && { label: '切り取り(T)', onClick: () => copy(true) }, !e.virt && !inTrash() && { label: 'コピー(C)', onClick: () => copy(false) },
@@ -232,7 +232,7 @@ export function files(os, args = {}) {
       { label: '最新の情報に更新(E)', onClick: render }, '-',
       { label: '貼り付け(P)', disabled: !os.clip || cwd === COMPUTER, onClick: paste }, '-',
       inTrash() ? { label: os.L.emptyTrash, disabled: !entries.length, onClick: () => os.emptyTrash() } : { label: '新規作成(W)', disabled: cwd === COMPUTER, sub: [{ label: 'フォルダ(F)', icon: 'folder', onClick: mkdir }, { label: 'テキスト ドキュメント', icon: 'text', onClick: mkfile }] },
-      cwd !== COMPUTER && { label: xp ? 'コマンド プロンプトをここで開く' : '端末で開く', icon: 'terminal', onClick: () => os.launch('terminal', { cwd }) },
+      cwd !== COMPUTER && { label: os.L.openTerm, icon: 'terminal', onClick: () => os.launch('terminal', { cwd }) },
       '-', { label: 'プロパティ(R)', disabled: cwd === COMPUTER, onClick: () => properties(os, cwd) },
     ], x, y);
   });

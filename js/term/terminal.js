@@ -11,7 +11,7 @@ const IS_MAC = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(naviga
 
 export class Terminal {
   constructor(host, opts = {}) {
-    this.palette = opts.palette || PALETTE;
+    this.palette = opts.palette || PALETTE; this.light = !!opts.light;
     this.out = h('div', { class: 'term-out' });
     this.active = h('div', { class: 'term-line' });
     this.scroll = h('div', { class: 'term-scroll' }, this.out, this.active);

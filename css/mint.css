@@ -64,7 +64,7 @@
 .os-mint .fm-place { padding: 5px 8px; } .os-mint .fm-place:hover { background: #3d3d3d; text-decoration: none; } .os-mint .fm-place.cur { background: #6fa23a; color: #fff; font-weight: normal; }
 .os-mint .fm-group-title { font-size: 11px; opacity: .6; text-transform: uppercase; letter-spacing: .04em; }
 .os-mint .fm-item.sel { background: rgba(111, 162, 58, .3); border-color: rgba(160, 210, 110, .5); } .os-mint .view-icons .fm-item.sel .fm-name { background: none; }
-.os-mint .term-mint { --term-fg: #d3d7cf; --term-bg: #2b2b2b; }
+.term-mint { --term-fg: #d3d7cf; --term-bg: #2b2b2b; }
 .os-mint .editor-text { background: #2b2b2b; color: #eeeeec; }
 .os-mint .br-notice { background: #4a431c; color: #f3e9b0; border-bottom-color: #2c2810; } .os-mint .br-notice a { color: #9fd4ff; }
 .os-mint .calc-key.op { color: #ffb0a0; } .os-mint .calc-key.mem { color: #e6a6ff; } .os-mint .calc-key.num { color: #fff; }

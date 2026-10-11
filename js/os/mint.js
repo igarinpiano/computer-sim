@@ -14,28 +14,32 @@ import '../term/tui.js';
 import '../term/awk.js';
 
 const HOME = '/home/user';
-const APPLIST = [
+export const APPLIST = [
   ['browser', 'Web ブラウザ', 'browser', 'インターネット', 'Web を閲覧します'], ['terminal', '端末', 'terminal', 'システムツール', 'コマンドラインを使用します'], ['files', 'ファイル', 'folder', 'アクセサリ', 'ファイルシステムにアクセスします'],
   ['editor', 'テキストエディター', 'editor', 'アクセサリ', 'テキストファイルを編集します'], ['calc', '電卓', 'calc', 'アクセサリ', '算術計算を行います'], ['viewer', '画像ビューアー', 'image', 'グラフィックス', '画像を表示します'],
   ['paint', 'お絵かき', 'paint', 'グラフィックス', '絵を描きます'], ['mines', 'マイン', 'mines', 'ゲーム', '地雷原から地雷を取り除きます'], ['taskmgr', 'システムモニター', 'taskmgr', 'システムツール', 'プロセスとリソースを監視します'],
   ['settings', 'システム設定', 'settings', '設定', 'デスクトップと保存データを設定します'], ['about', 'システム情報', 'info', '設定', 'このシステムについて'],
 ];
 const CFG = {
-  id: 'mint', name: 'Linux Mint 風', tagline: 'Cinnamon 風デスクトップ ／ 非公式シミュレータ', user: 'user', home: HOME, ci: false, perms: true, fsVersion: 1, workspaces: 4,
+  id: 'mint', kind: 'linux', bigIcons: true, dark: true, tabs: true, termClass: 'term-mint', name: 'Linux Mint 風', tagline: 'Cinnamon 風デスクトップ ／ 非公式シミュレータ', user: 'user', home: HOME, ci: false, perms: true, fsVersion: 1, workspaces: 4,
   docs: HOME + '/Documents', pics: HOME + '/Pictures', desktopDir: HOME + '/Desktop', trashDir: HOME + '/.local/share/Trash/files', markIcon: 'leaf',
   wallpapers: [['leaf', 'ミント'], ['aurora', 'オーロラ'], ['night', '夜空'], ['plain', '単色']],
   termPalette: ['#2e3436', '#cc0000', '#4e9a06', '#c4a000', '#3465a4', '#75507b', '#06989a', '#d3d7cf', '#555753', '#ef2929', '#8ae234', '#fce94f', '#729fcf', '#ad7fa8', '#34e2e2', '#eeeeec'],
   L: { terminal: '端末', editor: 'テキストエディター', browser: 'Web ブラウザ', files: 'ファイル', viewer: '画像ビューアー', calc: '電卓', mines: 'マイン', paint: 'お絵かき', settings: 'システム設定', taskmgr: 'システムモニター', about: 'システム情報', computer: 'コンピューター', docs: 'ドキュメント', trash: 'ゴミ箱', emptyTrash: 'ゴミ箱を空にする' },
   seed: b => {
     mintSeed(b);
-    for (const [name, c] of Object.entries(commands)) if (!c.pkg && /^[\w.+-]+$/.test(name)) b.file((c.sbin ? '/usr/sbin/' : '/usr/bin/') + name, '\x7fELF', { m: 0o755 });
-    for (const name of ['bash', 'sh', 'dash', 'sudo', 'su', 'echo', 'printf', 'test', 'kill', 'pwd', 'time']) b.file('/usr/bin/' + name, '\x7fELF', { m: name === 'sudo' || name === 'su' ? 0o4755 : 0o755 });
+    binStubs(b, 'debian');
   },
 };
+// Placeholder binaries in /usr/bin for every command the shell of this family knows.
+export function binStubs(b, fam) {
+  for (const [name, c] of Object.entries(commands)) if (!c.pkg && (!c.only || c.only.includes(fam)) && !c.not?.includes(fam) && /^[\w.+-]+$/.test(name)) b.file((c.sbin ? '/usr/sbin/' : '/usr/bin/') + name, '\x7fELF', { m: 0o755 });
+  for (const name of ['bash', 'sh', 'dash', 'sudo', 'su', 'echo', 'printf', 'test', 'kill', 'pwd', 'time']) b.file('/usr/bin/' + name, '\x7fELF', { m: name === 'sudo' || name === 'su' ? 0o4755 : 0o755 });
+}
 
 export class Mint extends Machine {
-  constructor(mount, onExit) {
-    super(mount, CFG, onExit);
+  constructor(mount, onExit, cfg = CFG) {
+    super(mount, cfg, onExit);
     const ram = ((navigator.deviceMemory || 8) * 1048576);
     Object.assign(this.fs.dyn, {
       null: () => '', random: () => Array.from({ length: 64 }, () => String.fromCharCode(33 + Math.floor(Math.random() * 90))).join(''),
@@ -44,14 +48,16 @@ export class Mint extends Machine {
       uptime: () => `${((Date.now() - this.bootTime) / 1000).toFixed(2)} ${((Date.now() - this.bootTime) / 1000 * 3.9).toFixed(2)}\n`,
       loadavg: () => `0.31 0.42 0.35 1/${420 + Math.floor(Math.random() * 20)} ${3000 + Math.floor(Math.random() * 900)}\n`,
     });
-    this.info = { name: 'Linux Mint', version: '21.3', codename: 'Virginia', kernel: '5.15.0-91-generic', de: 'Cinnamon 6.0.4' };
+    this.info = cfg.info || { name: 'Linux Mint', version: '21.3', codename: 'Virginia', kernel: '5.15.0-91-generic', de: 'Cinnamon 6.0.4' };
+    this.host = cfg.host || 'mint-pc';
   }
+  appList() { return APPLIST.map(a => [a[0], this.L[a[0]] || a[1], a[2], a[3], a[4]]); }
   pathLabel(p) { return p; }
   parsePath(s) { s = s.trim().replace(/^file:\/\//, ''); return this.fs.abs(s.replace(/^~(?=\/|$)/, this.home), this.home); }
   displayName(n) { return n.replace(/\.desktop$/, ''); }
-  aboutLines() { return ['Linux Mint 21.3 "Virginia" 風デスクトップ (Cinnamon 6.0 風)', 'カーネル: Linux 5.15.0-91-generic x86_64 (という設定の JavaScript)', `プロセッサ: JavaScript Virtual CPU × ${navigator.hardwareConcurrency || 4}　　ユーザー: ${this.user}@mint-pc`, `仮想ディスクの使用量: ${this.usage()} (ブラウザの localStorage)`]; }
+  aboutLines() { return [this.about || 'Linux Mint 21.3 "Virginia" 風デスクトップ (Cinnamon 6.0 風)', `カーネル: Linux ${this.info.kernel} x86_64 (という設定の JavaScript)`, `プロセッサ: JavaScript Virtual CPU × ${navigator.hardwareConcurrency || 4}　　ユーザー: ${this.user}@${this.host}`, `仮想ディスクの使用量: ${this.usage()} (ブラウザの localStorage)`]; }
   shell(term, args) {
-    const sh = new Bash({ term, fs: this.fs, os: this, user: this.user, host: 'mint-pc', home: this.home });
+    const sh = new Bash({ term, fs: this.fs, os: this, user: this.user, host: this.host, home: this.home, flavor: this.flavor });
     if (args.cwd && this.fs.isDir(args.cwd)) { sh.cwd = args.cwd; sh.set('PWD', args.cwd); }
     if (args.run) sh.autorun = args.run;
     return sh;
@@ -59,7 +65,7 @@ export class Mint extends Machine {
   panic() {
     setTimeout(() => this.crash('panic', `[ ${((Date.now() - this.bootTime) / 1000).toFixed(6)}] systemd[1]: Failed to execute /bin/sh, giving up: No such file or directory
 [ ${((Date.now() - this.bootTime) / 1000 + 0.004).toFixed(6)}] Kernel panic - not syncing: Attempted to kill init! exitcode=0x00007f00
-[ ${((Date.now() - this.bootTime) / 1000 + 0.004).toFixed(6)}] CPU: 0 PID: 1 Comm: systemd Not tainted 5.15.0-91-generic #101-Ubuntu
+[ ${((Date.now() - this.bootTime) / 1000 + 0.004).toFixed(6)}] CPU: 0 PID: 1 Comm: systemd Not tainted ${this.info.kernel} #1
 [ ${((Date.now() - this.bootTime) / 1000 + 0.005).toFixed(6)}] Hardware name: Browser Virtual Machine 1.0
 [ ${((Date.now() - this.bootTime) / 1000 + 0.005).toFixed(6)}] Call Trace:
 [ ${((Date.now() - this.bootTime) / 1000 + 0.005).toFixed(6)}]  <TASK>
@@ -89,7 +95,7 @@ rm -rf / を本当に実行してしまいましたね。(これはシミュレ�
   // ---- boot / login
   async start({ fast = false } = {}) {
     if (!fast) {
-      const el = h('div', { class: 'mint-boot' }, this.icon('leaf', 120), h('div', { class: 'mb-dots' }, h('i'), h('i'), h('i'), h('i'), h('i')), h('div', { class: 'mb-foot' }, '非公式の再現シミュレータです ／ クリックでスキップ'));
+      const el = h('div', { class: 'mint-boot' }, this.icon(this.markIcon, 120), h('div', { class: 'mb-dots' }, h('i'), h('i'), h('i'), h('i'), h('i')), h('div', { class: 'mb-foot' }, '非公式の再現シミュレータです ／ クリックでスキップ'));
       this.root.replaceChildren(el);
       await Promise.race([sleep(3000), new Promise(r => el.addEventListener('pointerdown', r, { once: true }))]);
       el.classList.add('fade'); await sleep(350);
@@ -112,9 +118,9 @@ rm -rf / を本当に実行してしまいましたね。(これはシミュレ�
         if (!store.persistent) setTimeout(() => this.notify('保存できません', 'このブラウザでは localStorage が無効のため、変更は保存されません。'), 3000);
         resolve();
       };
-      const el = h('div', { class: `mint-login wp-mint wp-${this.settings.wallpaper}` }, clock,
+      const el = h('div', { class: `mint-login wp-${this.id} wp-${this.settings.wallpaper}` }, clock,
         h('div', { class: 'ml-card' }, h('div', { class: 'ml-avatar' }, this.icon('user', 72)), h('div', { class: 'ml-name' }, this.user), pw, h('div', { class: 'ml-row' }, button('ログイン', login, 'default'))),
-        h('div', { class: 'ml-bar' }, h('span', null, 'mint-pc'), h('button', { class: 'ml-off', type: 'button', title: 'シャットダウン', onClick: () => { clearInterval(t); this.onExit('poweroff'); } }, this.icon('power', 20))));
+        h('div', { class: 'ml-bar' }, h('span', null, this.host), h('button', { class: 'ml-off', type: 'button', title: 'シャットダウン', onClick: () => { clearInterval(t); this.onExit('poweroff'); } }, this.icon('power', 20))));
       this.root.replaceChildren(el);
       pw.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
       setTimeout(() => pw.focus(), 100);
@@ -122,7 +128,7 @@ rm -rf / を本当に実行してしまいましたね。(これはシミュレ�
   }
   logoutScreen() { return this.greeter(); }
   async shutdownScreen() {
-    const el = h('div', { class: 'mint-boot bye' }, this.icon('leaf', 120), h('div', { class: 'mb-dots' }, h('i'), h('i'), h('i'), h('i'), h('i')));
+    const el = h('div', { class: 'mint-boot bye' }, this.icon(this.markIcon, 120), h('div', { class: 'mb-dots' }, h('i'), h('i'), h('i'), h('i'), h('i')));
     this.root.append(el);
     await sleep(1700);
   }
@@ -187,7 +193,7 @@ rm -rf / を本当に実行してしまいましたね。(これはシミュレ�
     const draw = () => {
       catEl.replaceChildren(...cats.map(c => { const b = h('button', { class: 'mm-cat' + (c === cat && !q ? ' cur' : ''), type: 'button' }, c); b.addEventListener('pointerenter', () => { if (cat !== c) { cat = c; q = ''; search.value = ''; draw(); } }); return b; }));
       const apps = APPLIST.filter(a => (q ? (a[1] + a[0] + a[4]).toLowerCase().includes(q.toLowerCase()) : cat === cats[0] || a[3] === cat));
-      list.replaceChildren(...apps.map(a => { const b = h('button', { class: 'mm-app', type: 'button', onClick: () => run(a[0]) }, this.icon(a[2], 26), h('span', null, a[1])); b.addEventListener('pointerenter', () => { desc.replaceChildren(h('b', null, a[1]), h('span', null, a[4])); }); return b; }), apps.length ? null : h('div', { class: 'mm-none' }, '見つかりませんでした'));
+      list.replaceChildren(...apps.map(a => { const b = h('button', { class: 'mm-app', type: 'button', onClick: () => run(a[0]) }, this.icon(a[2], 26), h('span', null, a[1])); b.addEventListener('pointerenter', () => { desc.replaceChildren(h('b', null, a[1]), h('span', null, a[4])); }); return b; }), ...(apps.length ? [] : [h('div', { class: 'mm-none' }, '見つかりませんでした')]));
     };
     const fav = (ic, label, fn) => h('button', { class: 'mm-fav', type: 'button', title: label, onClick: fn }, this.icon(ic, 30));
     this.menuEl = h('div', { class: 'mint-menu' },

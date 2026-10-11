@@ -19,8 +19,9 @@ const TILES = [
 ];
 
 function homePage(os) {
-  const xp = os.id !== 'mint';
-  const css = xp
+  const xp = os.kind === 'win' && !os.tabs;
+  const light = 'body{font:14px system-ui,"Hiragino Sans","Yu Gothic UI",sans-serif;background:#f6f7f9;color:#1d1d1f;margin:0}header{padding:44px 24px 10px;text-align:center;font-size:30px;font-weight:300;letter-spacing:.04em}main{padding:10px 24px 30px;max-width:760px;margin:auto}.tile{background:#fff;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.12)}.tile:hover{background:#eef3ff}a{color:#06c}input[type=text]{border:1px solid #c8ccd4;border-radius:8px;padding:9px 12px;background:#fff;color:#111}button{font:inherit;padding:8px 16px;border-radius:8px;border:0;background:#0a6cff;color:#fff}select{font:inherit;border-radius:8px;padding:7px;background:#fff;color:#111;border:1px solid #c8ccd4}';
+  const css = !xp && !os.dark ? light : xp
     ? 'body{font:13px Tahoma,"MS UI Gothic",sans-serif;background:#fff;color:#000;margin:0}header{background:linear-gradient(#2a5fd7,#6d9cf1);color:#fff;padding:18px 24px;font:italic bold 26px "Trebuchet MS",sans-serif}main{padding:18px 24px}.tile{border:1px solid #aac;border-radius:3px;background:#f3f6fd}.tile:hover{background:#dfe9ff}a{color:#00c}input[type=text]{border:1px solid #7f9db9;padding:4px}button{font:inherit;padding:3px 14px}'
     : 'body{font:14px "Noto Sans JP",Ubuntu,system-ui,sans-serif;background:#2b2a33;color:#fbfbfe;margin:0}header{padding:44px 24px 10px;text-align:center;font-size:30px;font-weight:300;letter-spacing:.04em}main{padding:10px 24px 30px;max-width:760px;margin:auto}.tile{background:#42414d;border-radius:8px}.tile:hover{background:#52525e}a{color:#8fd4ff}input[type=text]{border:1px solid #5b5b66;border-radius:6px;padding:9px 12px;background:#42414d;color:#fff}button{font:inherit;padding:8px 16px;border-radius:6px;border:0;background:#6fae3c;color:#fff}select{font:inherit;border-radius:6px;padding:7px;background:#42414d;color:#fff;border:1px solid #5b5b66}';
   return `<!doctype html><meta charset="utf-8"><style>*{box-sizing:border-box}${css}
@@ -30,13 +31,13 @@ form{display:flex;gap:8px;margin:8px 0 22px}form input{flex:1;font:inherit;min-w
 <header>${xp ? 'スタート ページ' : 'ようこそ'}</header><main>
 <form onsubmit="go((e.value.trim()?(s.value+encodeURIComponent(e.value)):''));return false"><input type="text" id="e" placeholder="Web を検索、または URL を入力" autofocus><select id="s">${Object.values(SEARCH).map(([n, u]) => `<option value="${esc(u)}">${n}</option>`).join('')}</select><button>検索</button></form>
 <h2>埋め込み表示に対応しているサイト</h2><div class="grid">${TILES.map(([n, u, d, c]) => `<a class="tile" onclick="go('${u}')"><b><i style="background:${c}"></i>${n}</b><span>${d}</span></a>`).join('')}</div>
-<div class="note">このブラウザは、あなたが今使っている本物のブラウザの表示エンジンでページを描画します。<br>多くのサイト (SNS、動画サイト、ニュースサイトなど) は安全上の理由から他のページへの埋め込みを禁止しているため、真っ白になったりエラーになることがあります。その場合はツールバーの「実ブラウザで開く」を押すと、本物の新しいタブで開けます。<br>仮想ディスク内の HTML ファイルは <code>${xp ? 'C:\\\\...\\\\index.html' : 'file:///home/user/...'}</code> のように入力すると表示できます。</div></main>
+<div class="note">このブラウザは、あなたが今使っている本物のブラウザの表示エンジンでページを描画します。<br>多くのサイト (SNS、動画サイト、ニュースサイトなど) は安全上の理由から他のページへの埋め込みを禁止しているため、真っ白になったりエラーになることがあります。その場合はツールバーの「実ブラウザで開く」を押すと、本物の新しいタブで開けます。<br>仮想ディスク内の HTML ファイルは <code>${os.kind === 'win' ? 'C:\\\\...\\\\index.html' : 'file://' + os.docs + '/index.html'}</code> のように入力すると表示できます。</div></main>
 <script>const e=document.getElementById('e'),s=document.getElementById('s');function go(u){if(u)parent.postMessage({osim:'nav',url:u},'*')}
 e.addEventListener('keydown',ev=>{if(ev.key==='Enter'&&/^(https?:\\/\\/|www\\.|[\\w-]+(\\.[\\w-]+)+(\\/|$))/.test(e.value.trim())){ev.preventDefault();go(e.value.trim())}})</script>`;
 }
 
 export function browser(os, args = {}) {
-  const xp = os.id !== 'mint', fs = os.fs;
+  const xp = os.kind === 'win' && !os.tabs, fs = os.fs;
   const tabs = [];
   let cur = null;
   const addr = h('input', { class: 'input br-addr', type: 'text', spellcheck: 'false', 'aria-label': 'アドレス' });
@@ -58,7 +59,7 @@ export function browser(os, args = {}) {
   ]) : null;
   const content = h('div', { class: 'app-col br' }, xp ? [menu, toolbar, addrRow] : [tabStrip, toolbar], notice, view, status);
   const win = os.wm.open({ title: os.L.browser, icon: 'browser', app: 'browser', width: 860, height: 560, minW: 380, minH: 240, content });
-  win.proc = { cmd: xp ? 'iexplore.exe' : 'firefox', exe: 'iexplore.exe' };
+  win.proc = { cmd: os.kind === 'win' ? 'iexplore.exe' : os.kind === 'mac' ? 'Browser' : 'firefox', exe: 'iexplore.exe' };
 
   const bookmarks = () => os.store.get('browser.bookmarks', TILES.slice(0, 4).map(([n, u]) => ({ title: n, url: u })));
   const bookmarkItems = () => [

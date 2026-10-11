@@ -33,7 +33,8 @@ export const sound = {
   fx(name, theme = 'xp') {
     const N = { C4: 261.6, D4: 293.7, E4: 329.6, G4: 392, A4: 440, B4: 493.9, C5: 523.3, D5: 587.3, E5: 659.3, G5: 784, A5: 880, C6: 1046.5, E6: 1318.5 };
     switch (name) {
-      case 'startup': return theme === 'mint'
+      case 'startup': if (theme === 'mac') return this.play([[146.8, 0, 2.2, 0.7], [220, 0, 2.2, 0.6], [277.2, 0.02, 2.2, 0.55], [329.6, 0.04, 2.2, 0.5], [440, 0.06, 2.2, 0.4], [554.4, 0.08, 2.2, 0.25]], { type: 'triangle', attack: 0.03, release: 1.4, gain: 0.1 });
+      return theme === 'mint'
         ? this.play([[N.C4, 0, 1.6, 0.6], [N.G4, 0.25, 1.4, 0.7], [N.E5, 0.5, 1.4, 0.8], [N.C6, 0.9, 1.6, 0.6]], { type: 'triangle', release: 0.9, attack: 0.15 })
         : this.play([[N.E5, 0, 0.5], [N.C5, 0.28, 0.4, 0.8], [N.G5, 0.56, 0.5], [N.E5, 0.9, 0.3, 0.7], [N.C6, 1.15, 1.2], [N.G4, 1.15, 1.2, 0.5], [N.E4, 0, 1.6, 0.35]], { type: 'triangle', release: 0.7, attack: 0.04 });
       case 'shutdown': return this.play([[N.C6, 0, 0.3], [N.G5, 0.22, 0.3, 0.9], [N.E5, 0.44, 0.3, 0.8], [N.C5, 0.66, 1, 0.9], [N.C4, 0.66, 1, 0.4]], { type: 'triangle', release: 0.6 });

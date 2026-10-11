@@ -1,13 +1,45 @@
 # Computer Sim
 
-ブラウザだけで動く OS シミュレータです。最初の画面で 3D のモニターからマシンを選ぶと、その OS が「起動」します。
+ブラウザだけで動く OS シミュレータです。最初の画面で 3D のモニターから系統と世代を選ぶと、その OS が「起動」します。
+DOS から Windows 11、Apple II から Liquid Glass の macOS、Arch のコンソールから KDE Plasma まで、歴代のデスクトップを行き来できます。
 ビルド不要の静的サイトなので、そのまま GitHub Pages で公開できます。
 
-| マシン | 内容 |
-|---|---|
-| **Windows XP 風** | 起動画面 → ようこそ画面 → デスクトップ。タスクバー、スタート メニュー、ファイル名を指定して実行、電源オプション、コマンド プロンプト |
-| **Linux Mint 風** | スプラッシュ → ログイン → Cinnamon 風デスクトップ。パネル、アプリケーション メニュー、4 面ワークスペース（3D キューブで回転）、bash 端末 |
-| **DOS 風** | POST 画面 → `C:\>` だけのテキスト モード。`WIN` と打つと… |
+全 20 機種。選択画面では「Windows 系 / Apple 系 / Linux 系」のタブで系統を切り替え、世代を選んで起動します。
+
+### Windows 系
+
+| マシン | `#id` | 内容 |
+|---|---|---|
+| **DOS 風** | `dos` | POST 画面 → `C:\>` だけのテキスト モード。`WIN` と打つと… |
+| **Windows 3.1 風** | `win31` | プログラム マネージャとグループ ウィンドウ。最小化するとデスクトップにアイコン |
+| **Windows 98 風** | `win98` | クラシック テーマ、カスケードするスタート メニュー、クイック起動、「MS-DOS モードで再起動」 |
+| **Windows XP 風** | `xp` | 起動画面 → ようこそ画面 → デスクトップ。タスクバー、2 段組のスタート メニュー、ファイル名を指定して実行 |
+| **Windows 7 風** | `win7` | ガラス調のウィンドウとタスクバー、検索付きスタート メニュー、ロック画面 → サインイン |
+| **Windows 8 風** | `win8` | 全画面のスタート画面（タイル）とフラットなデスクトップ |
+| **Windows 10 風** | `win10` | タイル付きスタート メニュー、検索ボックス、ダークなタスクバー |
+| **Windows 11 風** | `win11` | 中央寄せのタスクバー、角丸ウィンドウ、ピン留め式のスタート メニュー |
+
+### Apple 系
+
+| マシン | `#id` | 内容 |
+|---|---|---|
+| **Apple II 風** | `apple2` | CLI 時代。40 桁の画面と `]` プロンプト、一から書いた BASIC インタプリタ（`LOAD GUESS` → `RUN`） |
+| **クラシック Mac 風** | `mac7` | System 7 の頃の白黒デスクトップ。メニュー バー、縞模様のタイトル バー、クローズ / ズーム ボックス |
+| **Mac OS 9 風** | `mac9` | プラチナ アピアランス。グレーの立体的なウィンドウ |
+| **Mac OS X (Aqua) 風** | `aqua` | ピンストライプ、ジェリー状のボタン、拡大する Dock、ログイン パネル |
+| **OS X (フラット デザイン) 風** | `yosemite` | 半透明のメニュー バーと Dock、Launchpad、Spotlight |
+| **macOS (Big Sur 世代) 風** | `bigsur` | 角丸アイコンの浮いた Dock、コントロール センター、zsh |
+| **macOS (Liquid Glass) 風** | `tahoe` | ガラス質のウィンドウ・メニュー・Dock。カプセル形のボタンと透明なメニュー バー |
+
+### Linux 系
+
+| マシン | `#id` | 内容 |
+|---|---|---|
+| **Arch Linux 風** | `arch` | デスクトップなし。起動ログ → `login:` → bash だけ。`pacman` でパッケージ管理 |
+| **Ubuntu 8.04 (GNOME 2) 風** | `hardy` | 上下 2 本のパネル、「アプリケーション・場所・システム」メニュー、4 面のデスクトップ キューブ |
+| **Linux Mint 風** | `mint` | スプラッシュ → ログイン → Cinnamon 風デスクトップ。パネル、アプリケーション メニュー、4 面ワークスペース（3D キューブで回転） |
+| **Ubuntu (GNOME) 風** | `ubuntu` | トップ バー、左の Dock、アクティビティ画面とアプリ一覧、クイック設定 |
+| **KDE Plasma 風** | `kde` | 浮いたパネル、アプリケーション ランチャー、アイコンだけのタスク マネージャ、Konsole 風の端末 |
 
 > **非公式のファンメイド作品です。** 各 OS の開発元・権利者とは一切関係がありません。
 > ロゴ・壁紙・アイコン・効果音・サンプル文書はすべてこのリポジトリのために作ったオリジナルで、既存の素材は使っていません。
@@ -17,17 +49,19 @@
 
 ### ターミナル
 
-- **bash 互換シェル（Mint）** — クォート、変数・パラメータ展開（`${v%.*}` など）、コマンド置換、算術展開、ブレース展開、グロブ、パイプ、リダイレクト、ヒアドキュメント、`if` / `for` / `while` / `case` / 関数、エイリアス、ジョブ、履歴（`!!`、Ctrl+R）、Tab 補完、`sudo`、シェルスクリプトの実行
-- **コマンド 150 種以上** — `ls` `cat` `grep` `sed` `awk` `find` `sort` `uniq` `cut` `tr` `wc` `diff` `xargs` などの主要な coreutils、`man`、`less`、`nano`、`top` / `htop`、`ps`、`df`、`free`、`apt`（`sudo apt install sl cowsay cmatrix neofetch htop figlet lolcat fortune tree`）、`ping` / `curl` / `wget` / `dig`（ブラウザの fetch と DNS-over-HTTPS を使用）など
-- **cmd.exe 互換シェル（XP / DOS）** — `dir` `cd` `copy` `xcopy` `move` `del` `ren` `type` `find` `findstr` `tree` `set`（`/a` `/p`）`if` `for` `goto`、バッチ ファイル、`%変数%`、パイプとリダイレクト、`color`、`ipconfig`、`systeminfo`、`tasklist` ほか
+- **bash 互換シェル（Linux 系 / Mac 系）** — クォート、変数・パラメータ展開（`${v%.*}` など）、コマンド置換、算術展開、ブレース展開、グロブ、パイプ、リダイレクト、ヒアドキュメント、`if` / `for` / `while` / `case` / 関数、エイリアス、ジョブ、履歴（`!!`、Ctrl+R）、Tab 補完、`sudo`、シェルスクリプトの実行。Big Sur 以降の macOS 風では zsh 風のプロンプトとエラー表示になります
+- **コマンド 150 種以上** — `ls` `cat` `grep` `sed` `awk` `find` `sort` `uniq` `cut` `tr` `wc` `diff` `xargs` などの主要な coreutils、`man`、`less`、`nano`、`top` / `htop`、`ps`、`df`、`free`、`apt`（`sudo apt install sl cowsay cmatrix neofetch htop figlet lolcat fortune tree`）、`ping` / `curl` / `wget` / `dig`（ブラウザの fetch と DNS-over-HTTPS を使用）など。Arch 風では `apt` の代わりに `pacman`、Mac 風では `sw_vers` `open` `pbcopy` `say` `defaults` などが使えます
+- **cmd.exe / COMMAND.COM 互換シェル（Windows 系 / DOS）** — `dir` `cd` `copy` `xcopy` `move` `del` `ren` `type` `find` `findstr` `tree` `set`（`/a` `/p`）`if` `for` `goto`、バッチ ファイル、`%変数%`、パイプとリダイレクト、`color`、`ipconfig`、`systeminfo`、`tasklist` ほか。`ver` やバナー、ホーム フォルダの場所は世代ごとに変わります
+- **BASIC（Apple II 風）** — 行番号つきのプログラムを入力して `RUN`。`PRINT` `INPUT` `IF` `GOTO` `GOSUB` `FOR` `DIM` `DATA`、文字列・数値関数、`SAVE` / `LOAD` / `CATALOG`
 - **Vim** — ノーマル / 挿入 / 置換 / ビジュアル（文字・行・矩形）/ コマンドライン モード、オペレータ + モーション、テキストオブジェクト、カウント、レジスタ（`"+` はシステムのクリップボード）、マーク、マクロ、`.` リピート、アンドゥ / リドゥ、検索と `:s` 置換（`c` フラグ対応）、`:g`、ウィンドウ分割、複数バッファ、`:!cmd`、`:set` オプション、キーマップ、`~/.vimrc`、シンタックス ハイライト、`:help`、`vimtutor`
 
 ### デスクトップ
 
 - **Web ブラウザ** — ページは *あなたが今使っているブラウザのエンジン* で `<iframe>` に描画されます。埋め込みを禁止しているサイトは「実ブラウザで開く」ボタンで本物の新しいタブに開けます。仮想ディスク内の HTML も表示できます
 - **ファイル マネージャ** — アイコン / 詳細表示、コピー・移動・名前変更、ごみ箱（元に戻す対応）、プロパティ、実 PC からのドラッグ & ドロップ取り込み、実 PC への書き出し
-- **アプリ** — テキスト エディタ、ペイント、電卓、マインスイーパ、画像ビューア、タスク マネージャ、設定（壁紙・スクリーン セーバー・サウンド・ストレージ）
-- **3D 演出** — マシン選択画面（CSS 3D のモニター + WebGL の背景）、Mint のデスクトップ キューブ、ウィンドウの開閉・最小化アニメーション、3D パイプのスクリーン セーバー、CRT の電源オフ演出
+- **アプリ** — テキスト エディタ、ペイント、電卓、マインスイーパ、画像ビューア、タスク マネージャ、設定（壁紙・スクリーン セーバー・サウンド・ストレージ）。名前と見た目は OS ごとに変わります（メモ帳 / テキストエディット / Kate など）
+- **OS ごとの UI** — スタート メニュー各種、プログラム マネージャ、スタート画面、メニュー バーと Dock、Launchpad、Spotlight、コントロール センター、GNOME のアクティビティ画面、KDE のアプリケーション ランチャー
+- **3D 演出** — マシン選択画面（CSS 3D のモニター + WebGL の背景）、Linux デスクトップのワークスペース キューブ、Dock の拡大、ウィンドウの開閉・最小化アニメーション、3D パイプのスクリーン セーバー、CRT の電源オフ演出
 
 ### 保存データ
 
@@ -35,7 +69,8 @@
 
 - マシン選択画面の「消去」（表示中の OS のみ）／「すべての保存データを消去」
 - 各 OS の 設定 → ストレージ →「初期状態に戻す」
-- `rm -rf /`（Mint）や `C:\WINDOWS\system32` の削除（XP）をすると、エラー画面のあと自動で初期化されます
+- `rm -rf /`（Linux 系 / Mac 系）や `C:\WINDOWS\system32` の削除（Windows 系）をすると、エラー画面のあと自動で初期化されます
+- Arch 風は画面上部のバーに「初期化」ボタンがあります
 
 localStorage の上限（約 5 MB）に達すると通知が出ます。設定 → ストレージから JSON でバックアップも取れます。
 
@@ -47,15 +82,16 @@ ES Modules を使っているため、`file://` で直接開くのではなく H
 python3 -m http.server 8000
 ```
 
-その後 <http://localhost:8000/> を開きます。`#xp` `#mint` `#dos` を URL の末尾に付けると、そのマシンを直接起動できます。
+その後 <http://localhost:8000/> を開きます。上の表の `#id`（例: `#xp` `#tahoe` `#arch`）を URL の末尾に付けると、そのマシンを直接起動できます。
 
 ## 操作のヒント
 
 | | |
 |---|---|
-| マシン選択画面 | ← → で選択、Enter で起動 |
-| Mint | Ctrl+Alt+← / → でワークスペース切り替え、Ctrl+Alt+T で端末、Alt+F1 でメニュー |
-| XP | Ctrl+Esc でスタート メニュー、Alt+F4 でウィンドウを閉じる |
+| マシン選択画面 | ← → で世代、↑ ↓ で系統を選択、Enter で起動 |
+| Linux デスクトップ | Ctrl+Alt+← / → でワークスペース切り替え、Ctrl+Alt+T で端末、Alt+F1 でメニュー（Ubuntu 風はアクティビティ画面） |
+| Windows | Ctrl+Esc でスタート メニュー、Alt+F4 でウィンドウを閉じる |
+| Arch 風 | ユーザー名は `user` か `root`、パスワードは何でも通ります。`poweroff` で選択画面へ |
 | 端末 | Ctrl+Shift+C / V でコピー / 貼り付け、右クリックでもメニューが出ます |
 
 **Ctrl+W について** — Windows / Linux のブラウザでは Ctrl+W が「タブを閉じる」に割り当てられており、ページ側からは止められません（Vim のウィンドウ コマンドや bash の単語削除と重なります）。誤って閉じないよう、OS の実行中はページを離れる前に確認ダイアログが出ます。Vim のウィンドウ操作は `:wincmd w` や `:sp` / `:q` でも行えます。macOS では Ctrl+W をそのまま使えます。
@@ -64,14 +100,16 @@ python3 -m http.server 8000
 
 ```
 index.html
-css/            base.css（選択画面・DOS）, desktop.css（共通 UI）, xp.css, mint.css
+css/            base.css（選択画面・コンソール機）, desktop.css（共通 UI）, modern.css（現代的なテーマの共通部品）,
+                xp.css, win.css, mac.css, mint.css, linux.css
 js/
   main.js       マシン選択画面と起動処理
   landing3d.js  選択画面の WebGL 背景
   core/         仮想ファイルシステム, ウィンドウ マネージャ, UI 部品, アイコン, 効果音, ストレージ
-  term/         ターミナル エミュレータ, bash, cmd, coreutils, awk, Vim, less / nano / top など
+  term/         ターミナル エミュレータ, bash, cmd, coreutils, sysutils, awk, Vim, less / nano / top など
   apps/         ブラウザ, ファイル マネージャ, エディタ, ペイント, 電卓, マインスイーパ, 設定 ほか
-  os/           各マシン（xp.js, mint.js, dos.js）と初期ディスクの内容
+  os/           machine.js（デスクトップ機の共通基盤）, xp.js / win.js（Windows 系）, mac.js / apple2.js（Apple 系）,
+                mint.js / linux.js（Linux 系）, dos.js, seeds.js（初期ディスクの内容）
 ```
 
 外部ライブラリは [Three.js](https://threejs.org/)（MIT License）のみで、選択画面の背景と 3D パイプのスクリーン セーバーのために CDN から実行時に読み込みます。読み込めない環境でも、それ以外の機能はすべて動作します。
@@ -79,6 +117,8 @@ js/
 ## 制限事項
 
 - 実際の OS やそのバイナリを動かすエミュレータではなく、見た目と挙動を JavaScript で書き直した「再現」です。未実装のコマンドやオプションがあります
+- アプリの中身（ファイル マネージャ、エディタなど）は全 OS で共通の実装で、OS ごとに外観と名前を変えています。クラシック Mac 風の「ターミナル」は当時には無いおまけです
+- 半透明やぼかし（`backdrop-filter`）を多用するテーマは、古いブラウザでは単純な半透明になります
 - Vim は折りたたみ・タブページ・Vim script の関数・プラグインに対応していません
 - `python3` と `git` はごく小さなサブセットです
 - ネットワーク系のコマンドはブラウザの制約（CORS、生の TCP/ICMP は不可）の範囲で動きます

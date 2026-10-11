@@ -20,17 +20,18 @@ const IMG_EXT = new Set(['svg', 'png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp']);
 export class Machine {
   constructor(mount, cfg, onExit) {
     Object.assign(this, cfg);
-    this.onExit = onExit; this.theme = cfg.id; this.store = store.scoped(cfg.id); this.bootTime = Date.now(); this.clip = null;
+    this.onExit = onExit; this.theme = cfg.iconTheme || cfg.id; this.kind = cfg.kind || 'win'; this.store = store.scoped(cfg.id); this.bootTime = Date.now(); this.clip = null;
     this.settings = { wallpaper: cfg.wallpapers[0][0], saver: 'pipes', saverWait: 5, animate: true, ...this.store.get('settings', {}) };
     this.fs = new VFS({ storeKey: `${cfg.id}:fs`, ci: !!cfg.ci, perms: !!cfg.perms, user: cfg.user, seed: cfg.seed, version: cfg.fsVersion || 1 });
     this.fs.on('quota', () => this.notify('ディスクの空き領域がありません', 'ブラウザの保存領域 (localStorage) がいっぱいです。これ以降の変更は再読み込みすると失われます。不要なファイルを削除してください。'));
-    this.root = h('div', { class: `machine os-${cfg.id}` });
+    this.L = { rootName: this.kind === 'win' ? 'ローカル ディスク (C:)' : 'ファイルシステム', openTerm: this.kind === 'win' ? 'コマンド プロンプトをここで開く' : `${cfg.L.terminal}で開く`, ...cfg.L };
+    this.root = h('div', { class: `machine os-${cfg.id} k-${this.kind} ${cfg.rootClass || ''}` });
     mount.append(this.root);
     this._unload = e => { if (this.running) { e.preventDefault(); e.returnValue = ''; } };
     window.addEventListener('beforeunload', this._unload);
   }
   icon(name, size = 32) { return icon(name, this.theme, size); }
-  sound(name) { sound.fx(name, this.theme); }
+  sound(name) { sound.fx(name, this.soundTheme || (this.kind === 'win' ? 'xp' : 'mint')); }
   set(key, val) { this.settings[key] = val; this.store.set('settings', this.settings); this.applySettings(); }
   applySettings() {
     if (this.desk) this.desk.className = `desk wp-${this.id} wp-${this.settings.wallpaper}`;
@@ -47,7 +48,7 @@ export class Machine {
     this.notes = h('div', { class: 'notes' });
     this.desk.append(this.iconsEl, this.wmRoot);
     this.root.append(this.desk, this.notes);
-    this.wm = new WM(this.wmRoot, { theme: this.theme, workspaces: this.workspaces || 1, tilt: this.id === 'mint' ? 35 : 0 });
+    this.wm = new WM(this.wmRoot, { theme: this.theme, workspaces: this.workspaces || 1, tilt: this.kind !== 'win' ? 35 : 0 });
     this.buildPanel();
     this.applySettings();
     this.selIcon = null;
@@ -87,7 +88,7 @@ export class Machine {
   renderIcons() {
     if (!this.iconsEl) return;
     this.iconsEl.replaceChildren(...this.deskItems().map(it => {
-      const el = h('div', { class: 'desk-icon', dataset: { key: it.key }, tabindex: '0' }, h('div', { class: 'desk-ico' }, this.icon(typeof it.icon === 'function' ? it.icon() : it.icon, this.id === 'mint' ? 48 : 32)), h('div', { class: 'desk-label' }, it.label));
+      const el = h('div', { class: 'desk-icon', dataset: { key: it.key }, tabindex: '0' }, h('div', { class: 'desk-ico' }, this.icon(typeof it.icon === 'function' ? it.icon() : it.icon, this.bigIcons ? 48 : 32)), h('div', { class: 'desk-label' }, it.label));
       el.addEventListener('pointerdown', () => { this.selIcon = it.key; this.markIcons(); this.wm.blurAll(); });
       el.addEventListener('dblclick', () => it.open());
       el.addEventListener('keydown', e => { if (e.key === 'Enter') it.open(); else if (e.key === 'Delete' && it.path) this.deleteItems([it.path]); else if (e.key === 'F2' && it.path) this.renameItem(it.path); });
@@ -114,9 +115,9 @@ export class Machine {
     return [
       { label: '最新の情報に更新(E)', onClick: () => this.renderIcons() }, '-',
       { label: '貼り付け(P)', disabled: !this.clip, onClick: () => { try { for (const src of this.clip.paths) { const to = join(dir, uniqueName(fs, dir, basename(src))); if (this.clip.cut) fs.rename(src, to); else fs.copy(src, to, { r: true }); } if (this.clip.cut) this.clip = null; } catch { this.notify('デスクトップ', '貼り付けできませんでした。'); } } }, '-',
-      { label: '新規作成(W)', sub: [{ label: 'フォルダ(F)', icon: 'folder', onClick: () => make(this.id === 'mint' ? '名称未設定フォルダー' : '新しいフォルダ', true) }, { label: 'テキスト ドキュメント', icon: 'text', onClick: () => make(this.id === 'mint' ? '新しいドキュメント.txt' : '新規テキスト ドキュメント.txt', false) }] },
-      { label: this.id === 'mint' ? '端末で開く' : 'コマンド プロンプトをここで開く', icon: 'terminal', onClick: () => this.launch('terminal', { cwd: dir }) }, '-',
-      { label: this.id === 'mint' ? 'デスクトップの背景を変更' : 'プロパティ(R)', onClick: () => this.launch('settings', { page: 'desktop' }) },
+      { label: '新規作成(W)', sub: [{ label: 'フォルダ(F)', icon: 'folder', onClick: () => make(this.kind !== 'win' ? '名称未設定フォルダー' : '新しいフォルダ', true) }, { label: 'テキスト ドキュメント', icon: 'text', onClick: () => make(this.kind !== 'win' ? '新しいドキュメント.txt' : '新規テキスト ドキュメント.txt', false) }] },
+      { label: this.L.openTerm, icon: 'terminal', onClick: () => this.launch('terminal', { cwd: dir }) }, '-',
+      { label: this.kind !== 'win' ? 'デスクトップの背景を変更' : 'プロパティ(R)', onClick: () => this.launch('settings', { page: 'desktop' }) },
     ];
   }
   async renameItem(path) {
@@ -125,7 +126,7 @@ export class Machine {
     try { this.fs.rename(path, join(dirname(path), v)); } catch { msgBox(this, { title: '名前の変更', text: '名前を変更できませんでした。同じ名前のファイルがあるか、アクセスが拒否されました。', icon: 'error' }); }
   }
   async deleteItems(paths) {
-    if (this.id !== 'mint' && (await msgBox(this, { title: 'ファイルの削除の確認', text: paths.length === 1 ? `'${basename(paths[0])}' をごみ箱に移しますか?` : `これら ${paths.length} 個の項目をごみ箱に移しますか?`, icon: 'question', buttons: ['はい', 'いいえ'] })) !== 'はい') return;
+    if (this.kind === 'win' && (await msgBox(this, { title: 'ファイルの削除の確認', text: paths.length === 1 ? `'${basename(paths[0])}' をごみ箱に移しますか?` : `これら ${paths.length} 個の項目をごみ箱に移しますか?`, icon: 'question', buttons: ['はい', 'いいえ'] })) !== 'はい') return;
     try { this.trash(paths); } catch { msgBox(this, { title: 'ファイルの削除エラー', text: '削除できませんでした。アクセスが拒否されました。', icon: 'error' }); }
   }
 
@@ -178,7 +179,7 @@ export class Machine {
     if (ext === 'exe' || ext === 'com' || ext === 'dll' || text.startsWith('\x7fELF') || text.startsWith('MZ')) {
       const app = { 'cmd.exe': 'terminal', 'notepad.exe': 'editor', 'calc.exe': 'calc', 'mspaint.exe': 'paint', 'winmine.exe': 'mines', 'taskmgr.exe': 'taskmgr', 'explorer.exe': 'files', 'vim.exe': 'terminal', 'gvim.exe': 'terminal', 'edit.com': 'terminal' }[basename(p).toLowerCase()];
       if (app) return this.launch(app, /vim/i.test(p) ? { run: 'vim' } : /edit/i.test(p) ? { run: 'edit' } : {});
-      msgBox(this, { title: basename(p), text: this.id === 'mint' ? `"${basename(p)}" を開けません。\nこの実行ファイルは端末から実行してください。` : `${this.pathLabel(p)} は有効な Win32 アプリケーションではありません。`, icon: 'error' }); return;
+      msgBox(this, { title: basename(p), text: this.kind !== 'win' ? `"${basename(p)}" を開けません。\nこの実行ファイルは端末から実行してください。` : `${this.pathLabel(p)} は有効な Win32 アプリケーションではありません。`, icon: 'error' }); return;
     }
     if (TEXT_EXT.has(ext) || fs.size(n) < 300000) return this.launch('editor', { path: p });
     msgBox(this, { title: this.name, text: 'このファイルを開くプログラムがありません。', icon: 'warning' });

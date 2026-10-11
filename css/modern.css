@@ -1,0 +1,25 @@
+/* Component styling shared by the "modern" themes (macOS generations, Ubuntu, KDE).
+   A theme adds the class ui-modern and supplies the colours through custom properties:
+   --ctl-bg, --ctl-border, --accent, --accent-2, --note-bg, --note-fg (plus the usual set). */
+.ui-modern { --radius: 6px; }
+.ui-modern .btn { min-width: 78px; padding: 5px 14px; border: 1px solid var(--ctl-border); border-radius: var(--radius); background: var(--ctl-bg); color: var(--app-fg); }
+.ui-modern .btn:hover { filter: brightness(1.07); } .ui-modern .btn:active { filter: brightness(.93); }
+.ui-modern .btn.default { background: var(--accent); border-color: var(--accent-2); color: #fff; font-weight: 600; }
+.ui-modern .btn.danger { background: #d9434a; border-color: #a52a30; color: #fff; }
+.ui-modern .btn:focus-visible { outline: 2px solid color-mix(in srgb, var(--accent) 70%, #fff); outline-offset: 1px; }
+.ui-modern .dlg-btns { justify-content: flex-end; }
+.ui-modern .menu { border-radius: 7px; padding: 4px; box-shadow: 0 10px 28px rgba(0, 0, 0, .35); }
+.ui-modern .menu-item { padding: 5px 18px 5px 6px; border-radius: 4px; }
+.ui-modern .win-body .menubar { border-bottom-color: var(--line); } .ui-modern .win-body .menubar-item { padding: 4px 8px; border-radius: 4px; }
+.ui-modern .input { border-radius: 5px; padding: 5px 8px; } .ui-modern select.input { padding: 4px 6px; }
+.ui-modern .toolbar { padding: 5px 6px; gap: 3px; } .ui-modern .tbtn { padding: 5px 7px; border-radius: 5px; }
+.ui-modern .fm-head .fm-addrbar { border-bottom: 1px solid var(--line); } .ui-modern .fm-addrbar label { display: none; }
+.ui-modern .fm-list.view-icons { --fm-cell: 100px; }
+.ui-modern .fm-place { padding: 5px 8px; } .ui-modern .fm-place:hover { background: var(--hover); text-decoration: none; } .ui-modern .fm-place.cur { background: var(--accent); color: #fff; font-weight: normal; }
+.ui-modern .fm-group-title { font-size: 11px; opacity: .6; font-weight: 600; }
+.ui-modern .fm-item.sel, .ui-modern .desk-icon.sel { background: color-mix(in srgb, var(--accent) 26%, transparent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); border-radius: 6px; }
+.ui-modern .view-icons .fm-item.sel .fm-name { background: none; color: inherit; } .ui-modern .desk-icon.sel .desk-label { background: none; text-shadow: 1px 1px 2px #000; }
+.ui-modern .notes { right: 12px; top: 12px; }
+.ui-modern .note { background: var(--note-bg, rgba(38, 38, 38, .95)); color: var(--note-fg, #eee); border: 1px solid rgba(0, 0, 0, .25); border-radius: 12px; box-shadow: 0 10px 28px rgba(0, 0, 0, .4); backdrop-filter: blur(14px); }
+.ui-modern .set-wp-item.on { border-color: var(--accent); } .ui-modern .set-nav-item { border-radius: 6px; }
+.ui-modern .br-tab { border-radius: 7px 7px 0 0; }

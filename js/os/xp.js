@@ -12,7 +12,7 @@ import { Cmd } from '../term/cmd.js';
 const HOME = '/Documents and Settings/User';
 const NAMES = { Desktop: 'デスクトップ', 'My Documents': 'マイ ドキュメント', 'My Pictures': 'マイ ピクチャ', 'My Music': 'マイ ミュージック', Favorites: 'お気に入り', 'Start Menu': 'スタート メニュー' };
 const CFG = {
-  id: 'xp', name: 'Windows XP 風', tagline: 'Professional 風 ／ 非公式シミュレータ', user: 'User', home: HOME, ci: true, perms: false, seed: xpSeed, fsVersion: 1,
+  id: 'xp', kind: 'win', termClass: 'term-xp', name: 'Windows XP 風', tagline: 'Professional 風 ／ 非公式シミュレータ', user: 'User', home: HOME, ci: true, perms: false, seed: xpSeed, fsVersion: 1,
   docs: HOME + '/My Documents', pics: HOME + '/My Documents/My Pictures', desktopDir: HOME + '/Desktop', trashDir: '/RECYCLER', markIcon: 'gem',
   wallpapers: [['hills', '草原'], ['azure', '紺碧'], ['dusk', '夕暮れ'], ['plain', '(なし)']],
   termPalette: ['#000000', '#800000', '#008000', '#808000', '#000080', '#800080', '#008080', '#c0c0c0', '#808080', '#ff0000', '#00ff00', '#ffff00', '#0000ff', '#ff00ff', '#00ffff', '#ffffff'],
@@ -20,7 +20,7 @@ const CFG = {
 };
 
 export class XP extends Machine {
-  constructor(mount, onExit) { super(mount, CFG, onExit); }
+  constructor(mount, onExit, cfg = CFG) { super(mount, cfg, onExit); }
   pathLabel(p) { return 'C:' + (p === '/' ? '\\' : p.replace(/\//g, '\\')); }
   parsePath(s) {
     s = s.trim().replace(/"/g, '');

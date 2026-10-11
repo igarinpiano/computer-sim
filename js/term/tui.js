@@ -15,7 +15,7 @@ export async function runVim(env, argv) {
   const bind = () => { screen.onResize = () => vim.resize(); pop = term.pushHandler(ev => vim.key(ev)); };
   vim = new Vim({
     screen, fs: env.fs, cwd: env.cwd, home: env.home, env: env.vars,
-    style: s => term.style(s), bell: () => term.bell(),
+    style: s => term.style(s), bell: () => term.bell(), light: term.light,
     clipRead: () => navigator.clipboard.readText(),
     clipWrite: t => { navigator.clipboard?.writeText(t).catch(() => {}); },
     shell: env.run && (async (cmd, { stdin, capture }) => {

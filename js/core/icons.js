@@ -4,6 +4,14 @@
 const P = {
   xp: { folder: '#f8d568', folderDark: '#d9a520', accent: '#2a6fe0', paper: '#ffffff', ink: '#33415c', metal: '#c9d2e0', screen: '#2f7bd6' },
   mint: { folder: '#8fc45a', folderDark: '#5f9a35', accent: '#6fae3c', paper: '#f4f6f8', ink: '#3b4252', metal: '#aab4c0', screen: '#3a8f6e' },
+  win9x: { folder: '#f2d76b', folderDark: '#b8962a', accent: '#000080', paper: '#ffffff', ink: '#000000', metal: '#c0c0c0', screen: '#008080' },
+  aero: { folder: '#f6dc8a', folderDark: '#d2a93c', accent: '#3c8ad9', paper: '#ffffff', ink: '#33415c', metal: '#cfd8e6', screen: '#3f8fe0' },
+  win10: { folder: '#f7c64a', folderDark: '#d79a1e', accent: '#0078d4', paper: '#ffffff', ink: '#33415c', metal: '#d5dbe5', screen: '#0a74d0' },
+  mac: { folder: '#6bb7f5', folderDark: '#3f8fd6', accent: '#1a7df0', paper: '#ffffff', ink: '#33415c', metal: '#d4d8de', screen: '#5a9ff0' },
+  macclassic: { folder: '#c9cdea', folderDark: '#6a6fa8', accent: '#4a4a8a', paper: '#ffffff', ink: '#000000', metal: '#d6d6d6', screen: '#9aa7c7' },
+  ubuntu: { folder: '#f28a4b', folderDark: '#c9541a', accent: '#e95420', paper: '#f7f7f7', ink: '#3b4252', metal: '#b9b4b0', screen: '#77216f' },
+  hardy: { folder: '#e3b06a', folderDark: '#a8742c', accent: '#d9661f', paper: '#fbf8f1', ink: '#3c3220', metal: '#c8bfae', screen: '#8a5a2b' },
+  kde: { folder: '#5bbcf0', folderDark: '#2d8bc9', accent: '#3daee9', paper: '#fcfcfc', ink: '#31363b', metal: '#c4c9cd', screen: '#2a80b9' },
 };
 const g = (id, a, b) => `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`;
 let uid = 0;
@@ -57,6 +65,15 @@ const ICONS = {
   saver: () => `<rect x="3" y="5" width="26" height="19" rx="2" fill="#0b1020" stroke="#59627a"/><path d="M8 19V11h6v5h6v-6h5" stroke="#4ade80" stroke-width="2.600" fill="none" stroke-linejoin="round"/><circle cx="14" cy="11" r="1.900" fill="#f7c948"/><circle cx="20" cy="16" r="1.900" fill="#f472b6"/><rect x="11" y="26" width="10" height="2" rx="1" fill="#6d7890"/>`,
   leaf: () => `<path d="M6 26C5 13 12 5 27 5c0 14-7 21-17 21-1.400 0-2.800-.200-4 0z" fill="#86be43" stroke="#4d7f22" stroke-linejoin="round"/><path d="M6.500 26C11 19 16 14 23 9.500M13 19.500v-6M17.500 15.500h5.500" stroke="#fff" stroke-width="1.800" fill="none" stroke-linecap="round"/>`,
   gem: () => `<path d="M16 3l11 13-11 13L5 16z" fill="#fff" fill-opacity=".95"/><path d="M16 3l11 13H5z" fill="#fff"/><path d="M16 9l5 7-5 7-5-7z" fill="#2f7d32" fill-opacity=".55"/>`,
+  pear: () => `<path d="M16 6c3 0 4.500 2.500 4.500 5 0 1.800 1.200 3 2.600 4.800C25 18.300 26 20.500 26 23c0 4-4.400 6-10 6s-10-2-10-6c0-2.500 1-4.700 2.900-7.200C10.300 14 11.500 12.800 11.500 11c0-2.500 1.500-5 4.500-5z" fill="currentColor"/><path d="M16 6.500c0-2 1-3.500 3-4" stroke="currentColor" stroke-width="1.800" fill="none" stroke-linecap="round"/>`,
+  ring: () => `<circle cx="16" cy="16" r="13" fill="#e95420"/><path d="M9 18a7 7 0 0 1 14 0z" fill="#fff"/><rect x="7" y="20" width="18" height="2" rx="1" fill="#fff"/><rect x="11" y="24" width="10" height="2" rx="1" fill="#fff" opacity=".8"/><g stroke="#fff" stroke-width="1.600" stroke-linecap="round"><path d="M16 5.500v2.500M8.500 9l1.700 1.700M23.500 9l-1.700 1.700"/></g>`,
+  cog: () => `<path d="M14 3h4l.8 3.400 2.400 1 3-1.800 2.800 2.800-1.800 3 1 2.400L29.600 14v4l-3.400.8-1 2.400 1.800 3-2.800 2.800-3-1.800-2.400 1L18 29.600h-4l-.8-3.400-2.400-1-3 1.800-2.800-2.800 1.800-3-1-2.400L2.400 18v-4l3.400-.8 1-2.400-1.800-3 2.800-2.800 3 1.800 2.400-1z" fill="#3daee9"/><path d="M13 11l8 5-8 5z" fill="#fff"/>`,
+  grid: () => `${[0, 1, 2].map(r => [0, 1, 2].map(c => `<rect x="${5 + c * 8}" y="${5 + r * 8}" width="6" height="6" rx="1.500" fill="currentColor"/>`).join('')).join('')}`,
+  finder: p => `<rect x="3" y="3" width="26" height="26" rx="6" fill="${p.accent}"/><path d="M8 13a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2z" fill="#fff"/>`,
+  launch: () => `<rect x="3" y="3" width="26" height="26" rx="6" fill="#8a8f98"/>${[0, 1, 2].map(r => [0, 1, 2].map(c => `<rect x="${7.500 + c * 6.500}" y="${7.500 + r * 6.500}" width="4.500" height="4.500" rx="1.200" fill="${['#ff5f57', '#febc2e', '#28c840', '#4aa3ff', '#b48cff', '#ff8fc7', '#5fd0c5', '#f5f5f5', '#ffa64d'][r * 3 + c]}"/>`).join('')).join('')}`,
+  wifi: () => `<path d="M4 13a17 17 0 0 1 24 0M8 17.500a11.500 11.500 0 0 1 16 0M12 22a6 6 0 0 1 8 0" stroke="currentColor" stroke-width="2.600" fill="none" stroke-linecap="round"/><circle cx="16" cy="26" r="2" fill="currentColor"/>`,
+  battery: () => `<rect x="3" y="10" width="23" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><rect x="6" y="13" width="14" height="6" rx="1" fill="currentColor"/><rect x="27" y="13.500" width="2.500" height="5" rx="1" fill="currentColor"/>`,
+  toggles: () => `<rect x="4" y="7" width="24" height="7" rx="3.500" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="21.500" cy="10.500" r="2.200" fill="currentColor"/><rect x="4" y="18" width="24" height="7" rx="3.500" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="10.500" cy="21.500" r="2.200" fill="currentColor"/>`,
   dos: () => `<rect x="3" y="5" width="26" height="22" rx="2" fill="#000" stroke="#8a94a6"/><text x="6" y="19" font-family="monospace" font-size="9" font-weight="700" fill="#d0d0d0">C:\\&gt;_</text>`,
   disk: () => `<rect x="4" y="4" width="24" height="24" rx="2" fill="#3b4a6b" stroke="#232d44"/><rect x="9" y="4" width="14" height="9" fill="#cfd6e3"/><rect x="18" y="5.500" width="3" height="6" fill="#3b4a6b"/><rect x="8" y="17" width="16" height="11" fill="#f4f6f8"/>`,
   new: p => page(p, `<path d="M16.500 13v9M12 17.500h9" stroke="#30a46c" stroke-width="2.400" stroke-linecap="round"/>`),
